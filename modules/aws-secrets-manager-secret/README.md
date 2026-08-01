@@ -57,7 +57,7 @@ module "my_secret" {
 | `secret_arn` | The ARN of the secret |
 | `secret_name` | The name of the secret |
 | `secret_version_id` | The version ID of the stored secret value |
-| `rotation_enabled` | Whether automatic rotation is enabled |
+| `rotation_enabled` | Whether automatic rotation is enabled (true when the rotation resource is provisioned) |
 | `kms_key_id` | The KMS key ID used for encryption |
 
 ## Notes
@@ -65,3 +65,4 @@ module "my_secret" {
 - Only one of `secret_string` or `secret_binary` should be provided at a time.
 - Setting `recovery_window_in_days = 0` forces immediate deletion with no recovery window.
 - `rotation_lambda_arn` is required when `enable_rotation = true`.
+- `rotation_enabled` reflects whether the `aws_secretsmanager_secret_rotation` resource was provisioned, not a native attribute of the secret resource.
