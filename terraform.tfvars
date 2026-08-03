@@ -1,85 +1,68 @@
-region      = "us-east-1"
+# ============================================================
+# Provider / Region
+# ============================================================
+region = "us-east-1"
+
+# ============================================================
+# Account identifiers
+# ============================================================
+aws_account_id       = "472496548172"
+s3_bucket_account_id = "792373136340"
+
+# ============================================================
+# Multi-account: cross-account provider assume-role
+# (values injected at deploy time by TFC workspace variables)
+# ============================================================
+assume_role_arn_acct_792373136340          = ""
+assume_role_external_id_acct_792373136340  = ""
+
+# ============================================================
+# Environment
+# ============================================================
 environment = "dev"
 
 # ============================================================
-# CloudWatch Log Groups
+# VPC
 # ============================================================
-log_groups = {
-  crossaccount-demo-dev = {
-    name              = "/aws/lambda/belc-platform-crossaccount-demo-dev"
-    retention_in_days = 30
-    tags = {
-      grupo = "platform"
-    }
-  }
-}
-
-cloudwatch_tags = {}
+vpc_id = ""
 
 # ============================================================
-# Lambda Execution IAM Role
+# ECR
 # ============================================================
-lambda_role_name        = "belc-platform-crossaccount-demo-role-dev"
-lambda_role_description = "Execution role for Lambda function belc-platform-crossaccount-demo-dev with cross-account S3 access"
-
-lambda_assume_role_principals = [
-  {
-    type        = "Service"
-    identifiers = ["lambda.amazonaws.com"]
-  }
-]
-
-lambda_managed_policy_arns = [
-  "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-  "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
-]
-
-lambda_force_detach_policies = true
-lambda_max_session_duration  = 3600
-
-lambda_role_tags = {
-  grupo = "platform"
-}
+ecr_repository_name = "belc-platform-lambda-dev"
 
 # ============================================================
-# Lambda Security Group
+# IAM Role
 # ============================================================
-lambda_sg_name        = "belc-platform-crossaccount-demo-dev-sg"
-lambda_sg_description = "Security group for Lambda function crossaccount-demo"
-
-vpc_id = "vpc-xxxxxxxxxxxxxxxxx"
-
-lambda_sg_egress_rules = [
-  {
-    description      = "Allow all outbound (S3 cross-account access)"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = []
-    security_groups  = []
-    self             = false
-  }
-]
-
-lambda_sg_tags = {
-  grupo = "platform"
-}
+lambda_role_name = "belc-platform-lambda-role-dev"
 
 # ============================================================
-# Cross-account S3 bucket (existing)
+# Security Group
 # ============================================================
-crossaccount_s3_bucket_name = "test-crossaccount-opsera-demo"
+lambda_sg_name = "belc-platform-lambda-sg-dev"
 
 # ============================================================
-# Cross-account provider credentials (account 792373136340)
+# Lambda Function
 # ============================================================
-assume_role_arn_acct_792373136340         = ""
-assume_role_external_id_acct_792373136340 = ""
+lambda_function_name = "belc-platform-lambda-dev"
+
+# Placeholder — replaced by CI/CD pipeline after first image push
+lambda_image_uri = "472496548172.dkr.ecr.us-east-1.amazonaws.com/belc-platform-lambda-dev:latest"
+
+# ============================================================
+# Secrets Manager
+# ============================================================
+secret_name   = "belc-platform-lambda-secret-dev"
+secret_string = ""
+
+# ============================================================
+# Cross-account S3 bucket
+# ============================================================
+s3_bucket_name = "test-crossaccount-opsera-demo"
 
 default_tags = {
   grupo = "platform"
-  service = "crossaccount-demo"
+  service = "lambda"
   environment = "dev"
   managed_by = "cloudforge"
 }
