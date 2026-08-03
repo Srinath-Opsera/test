@@ -44,7 +44,7 @@ lambda_role_tags = {
 # ============================================================
 # Lambda Security Group
 # ============================================================
-lambda_sg_name        = "sg-belc-platform-crossaccount-demo-dev"
+lambda_sg_name        = "belc-platform-crossaccount-demo-dev-sg"
 lambda_sg_description = "Security group for Lambda function crossaccount-demo"
 
 vpc_id = "vpc-xxxxxxxxxxxxxxxxx"
