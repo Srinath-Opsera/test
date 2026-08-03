@@ -4,7 +4,7 @@ terraform {
     organization = "TF01"
     workspaces {
       # Replaced automatically during deployment with the selected TFC workspace name
-      name = "affinity-test-dev"
+      name = "crossaccount-demo-dev"
     }
   }
 }
