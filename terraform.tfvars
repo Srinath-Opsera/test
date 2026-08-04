@@ -36,7 +36,7 @@ managed_policy_arns = [
 ]
 
 # ─── Security Group ───────────────────────────────────────────────────────────
-security_group_name        = "sg-belc-affinity-lambda-dev"
+security_group_name        = "belc-affinity-lambda-dev-sg"
 security_group_description = "Security group for Lambda function belc-affinity-lambda-dev"
 vpc_id                     = ""
 
