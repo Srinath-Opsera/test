@@ -29,7 +29,7 @@ variable "recovery_window_in_days" {
 
 variable "force_overwrite_replica_secret" {
   type        = bool
-  description = "Whether to overwrite a secret with the same name in the destination region during replication."
+  description = "Whether to overwrite a secret with the same name in the destination Region when replicating."
   default     = false
 }
 
@@ -42,7 +42,7 @@ variable "secret_string" {
 
 variable "enable_rotation" {
   type        = bool
-  description = "Whether to enable automatic rotation for the secret."
+  description = "Whether to enable automatic secret rotation via a Lambda function."
   default     = false
 }
 
