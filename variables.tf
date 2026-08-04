@@ -1,9 +1,6 @@
-# ============================================================
-# Provider / Region
-# ============================================================
 variable "region" {
   type        = string
-  description = "AWS region for all resources"
+  description = "AWS region for resource deployment"
   default     = "us-east-1"
 }
 
@@ -14,101 +11,50 @@ variable "default_tags" {
 }
 
 # ============================================================
-# Account identifiers
+# IAM Role variables
 # ============================================================
-variable "aws_account_id" {
+variable "lambda_role_name" {
   type        = string
-  description = "Primary AWS account ID (472496548172)"
-  default     = "472496548172"
+  description = "Name of the Lambda execution IAM role"
 }
 
-variable "s3_bucket_account_id" {
+variable "lambda_role_description" {
   type        = string
-  description = "AWS account ID that owns the cross-account S3 bucket (792373136340)"
-  default     = "792373136340"
-}
-
-# ============================================================
-# Multi-account: additional provider assume-role variables
-# ============================================================
-variable "assume_role_arn_acct_792373136340" {
-  type        = string
-  description = "IAM role ARN to assume in account 792373136340 for cross-account provider"
-}
-
-variable "assume_role_external_id_acct_792373136340" {
-  type        = string
-  description = "Optional external ID for assuming the role in account 792373136340"
-  default     = ""
+  description = "Description of the Lambda execution IAM role"
+  default     = "IAM execution role for Lambda function affinity-lambda"
 }
 
 # ============================================================
-# Environment
+# Security Group variables
 # ============================================================
-variable "environment" {
+variable "lambda_sg_name" {
   type        = string
-  description = "Deployment environment (dev, staging, prod, test, qa)"
-  default     = "dev"
+  description = "Name of the Lambda security group"
 }
 
-# ============================================================
-# VPC
-# ============================================================
+variable "lambda_sg_description" {
+  type        = string
+  description = "Description of the Lambda security group"
+  default     = "Security group for Lambda function outbound access"
+}
+
 variable "vpc_id" {
   type        = string
   description = "VPC ID where the Lambda security group will be created"
 }
 
 # ============================================================
-# ECR
-# ============================================================
-variable "ecr_repository_name" {
-  type        = string
-  description = "Name of the ECR repository for the Lambda container image"
-  default     = "belc-platform-lambda-dev"
-}
-
-# ============================================================
-# IAM Role
-# ============================================================
-variable "lambda_role_name" {
-  type        = string
-  description = "Name of the Lambda execution IAM role"
-  default     = "belc-platform-lambda-role-dev"
-}
-
-# ============================================================
-# Security Group
-# ============================================================
-variable "lambda_sg_name" {
-  type        = string
-  description = "Name of the Lambda security group"
-  default     = "belc-platform-lambda-sg-dev"
-}
-
-# ============================================================
-# Lambda Function
-# ============================================================
-variable "lambda_function_name" {
-  type        = string
-  description = "Name of the Lambda function"
-  default     = "belc-platform-lambda-dev"
-}
-
-# Placeholder — replaced by CI/CD pipeline after first image push
-variable "lambda_image_uri" {
-  type        = string
-  description = "ECR image URI for the Lambda container image deployment. Placeholder until first image is pushed."
-  default     = "472496548172.dkr.ecr.us-east-1.amazonaws.com/belc-platform-lambda-dev:latest"
-}
-
-# ============================================================
-# Secrets Manager
+# Secrets Manager variables
 # ============================================================
 variable "secret_name" {
   type        = string
   description = "Name of the Secrets Manager secret"
-  default     = "belc-platform-lambda-secret-dev"
+}
+
+variable "secret_description" {
+  type        = string
+  description = "Description of the Secrets Manager secret"
+  default     = "Secrets for affinity-lambda including AFFINITY_API_TOKEN, PGPASSWORD_QAS, and PGPASSWORD_DEV"
 }
 
 variable "secret_string" {
@@ -119,18 +65,29 @@ variable "secret_string" {
 }
 
 # ============================================================
-# Cross-account S3 bucket
+# Permission Bridge variables
 # ============================================================
-variable "s3_bucket_name" {
+variable "s3_bucket_name_test_crossaccount_opsera_demo" {
   type        = string
   description = "Name of the existing cross-account S3 bucket in account 792373136340"
   default     = "test-crossaccount-opsera-demo"
 }
 
+variable "assume_role_arn_acct_792373136340" {
+  type        = string
+  description = "ARN of the IAM role to assume in account 792373136340"
+}
+
+variable "assume_role_external_id_acct_792373136340" {
+  type        = string
+  description = "Optional external ID for assuming the role in account 792373136340"
+  default     = ""
+}
+
 
 # --- Variables for resource policy injection ---
 
-variable "existing_s3_bucket_cross_account_bucket_name" {
+variable "existing_s3_bucket_test_crossaccount_opsera_demo_bucket_name" {
   description = "Name of the existing S3 bucket for policy attachment"
   type        = string
   default     = "test-crossaccount-opsera-demo"
