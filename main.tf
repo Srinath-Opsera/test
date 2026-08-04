@@ -218,7 +218,7 @@ resource "aws_s3_bucket_policy" "existing_s3_bucket_test_crossaccount_opsera_dem
           "Sid": "Allowlambda_execution_iam_roleObjectAccess",
           "Effect": "Allow",
           "Principal": {
-            "AWS": "${module.lambda_execution_iam_role.role_arn}"
+            "AWS": "${module.lambda_execution_role.role_arn}"
           },
           "Action": [
             "s3:GetObject",
@@ -231,7 +231,7 @@ resource "aws_s3_bucket_policy" "existing_s3_bucket_test_crossaccount_opsera_dem
           "Sid": "Allowlambda_execution_iam_roleListBucket",
           "Effect": "Allow",
           "Principal": {
-            "AWS": "${module.lambda_execution_iam_role.role_arn}"
+            "AWS": "${module.lambda_execution_role.role_arn}"
           },
           "Action": [
             "s3:ListBucket"
@@ -240,5 +240,5 @@ resource "aws_s3_bucket_policy" "existing_s3_bucket_test_crossaccount_opsera_dem
         }
       ]
     })
-  depends_on = [module.lambda_execution_iam_role]
+  depends_on = [module.lambda_execution_role]
 }
