@@ -20,10 +20,10 @@ output "secret_version_id" {
 
 output "rotation_enabled" {
   description = "Whether automatic rotation is enabled for the secret."
-  value       = length(aws_secretsmanager_secret_rotation.this) > 0
+  value       = aws_secretsmanager_secret.this.rotation_enabled
 }
 
-output "replica_arns" {
-  description = "A list of ARNs for the replicated secrets in other regions."
-  value       = [for r in aws_secretsmanager_secret.this.replica : r.arn]
+output "kms_key_id" {
+  description = "The KMS key ID used to encrypt the secret, if any."
+  value       = aws_secretsmanager_secret.this.kms_key_id
 }
