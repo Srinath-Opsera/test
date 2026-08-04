@@ -24,9 +24,6 @@ output "rotation_enabled" {
 }
 
 output "replica_arns" {
-  description = "A map of replica region to replica secret ARN."
-  value = {
-    for r in aws_secretsmanager_secret.this.replica :
-    r.region => r.last_accessed_date
-  }
+  description = "A list of ARNs for the replicated secrets in other regions."
+  value       = [for r in aws_secretsmanager_secret.this.replica : r.arn]
 }
