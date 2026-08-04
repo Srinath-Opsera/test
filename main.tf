@@ -1,157 +1,50 @@
-# ============================================================
-# CloudWatch Log Group
-# ============================================================
 module "cloudwatch_log_group" {
   source = "./modules/aws-cloudwatch"
 
-  log_groups = {
-    "affinity-lambda" = {
-      name              = "/aws/lambda/belc-affinity-affinity-lambda-dev"
-      retention_in_days = 30
-      tags = {
-        service = "affinity-lambda"
-        env     = "dev"
-      }
-    }
-  }
-
-  metric_alarms  = {}
-  dashboards     = {}
-  log_streams    = {}
-  event_rules    = {}
-  event_targets  = {}
+  log_groups = var.log_groups
 
   tags = {
-    service = "affinity-lambda"
+    service = "lambda"
     env     = "dev"
   }
 }
 
-# ============================================================
-# Lambda Execution IAM Role
-# ============================================================
 module "lambda_execution_role" {
   source = "./modules/terraform-aws-iam-role"
 
-  name        = var.lambda_role_name
-  description = var.lambda_role_description
-  path        = "/"
+  name        = var.iam_role_name
+  description = var.iam_role_description
+  path        = var.iam_role_path
 
-  max_session_duration  = 3600
-  force_detach_policies = true
+  max_session_duration  = var.iam_role_max_session_duration
+  force_detach_policies = var.iam_role_force_detach_policies
 
-  assume_role_principals = [
-    {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
-    }
-  ]
+  assume_role_principals = var.assume_role_principals
 
-  managed_policy_arns = [
-    "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-    "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
-  ]
+  managed_policy_arns = var.managed_policy_arns
 
-  inline_policies = {
-    secretsmanager-read = {
-      name   = "secretsmanager-read"
-      policy = jsonencode({
-        Version = "2012-10-17"
-        Statement = [
-          {
-            Sid    = "SecretsManagerRead"
-            Effect = "Allow"
-            Action = [
-              "secretsmanager:GetSecretValue",
-              "secretsmanager:DescribeSecret",
-              "secretsmanager:ListSecretVersionIds"
-            ]
-            Resource = module.secrets_manager.secret_arn
-          }
-        ]
-      })
-    }
-  }
-
-  tags = {
-    service = "affinity-lambda"
-    env     = "dev"
-  }
+  tags = {}
 }
 
-# ============================================================
-# Lambda Security Group
-# ============================================================
 module "lambda_security_group" {
   source = "./modules/terraform-aws-security-group"
 
-  name        = var.lambda_sg_name
-  description = var.lambda_sg_description
+  name        = var.security_group_name
+  description = var.security_group_description
   vpc_id      = var.vpc_id
 
-  ingress_rules = []
+  ingress_rules            = var.ingress_rules
+  egress_rules             = var.egress_rules
+  default_egress_allow_all = var.default_egress_allow_all
+  revoke_rules_on_delete   = var.revoke_rules_on_delete
 
-  egress_rules = [
-    {
-      description      = "Allow all outbound (S3, Secrets Manager, ECR)"
-      from_port        = 0
-      to_port          = 0
-      protocol         = "-1"
-      cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = []
-      security_groups  = []
-      self             = false
-    }
-  ]
-
-  default_egress_allow_all = true
-  revoke_rules_on_delete   = false
-
-  tags = {
-    service = "affinity-lambda"
-    env     = "dev"
-  }
+  tags = {}
 }
 
-# ============================================================
-# Secrets Manager Secret
-# ============================================================
-module "secrets_manager" {
-  source = "./modules/aws-secrets-manager-secret"
-
-  name                          = var.secret_name
-  description                   = var.secret_description
-  kms_key_id                    = null
-  recovery_window_in_days       = 30
-  force_overwrite_replica_secret = false
-  replica_regions               = []
-
-  secret_string  = var.secret_string
-  secret_binary  = null
-  version_stages = null
-
-  enable_rotation                   = false
-  rotation_lambda_arn               = null
-  rotation_automatically_after_days = 30
-
-  secret_policy       = null
-  block_public_policy = true
-
-  tags = {
-    service     = "affinity-lambda"
-    env         = "dev"
-    environment = "dev"
-    managed_by  = "cloudforge"
-  }
-}
-
-# ============================================================
-# PERMISSION BRIDGE: Cross-account S3 access
-# Identity-side IAM policy for Lambda role -> S3 bucket in account 792373136340
-# ============================================================
+# ─── Permission Bridge: Cross-Account S3 (account 792373136340) ───────────────
 resource "aws_iam_policy" "cross_account_s3_test_crossaccount_opsera_demo_access" {
-  name        = "affinity-lambda-s3-test-crossaccount-opsera-demo-policy-dev"
-  description = "Least-privilege cross-account S3 access for affinity-lambda to test-crossaccount-opsera-demo"
+  name        = "lambda-s3-test-crossaccount-opsera-demo-policy-dev"
+  description = "Identity-side policy granting Lambda role cross-account access to S3 bucket test-crossaccount-opsera-demo in account 792373136340"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -160,28 +53,19 @@ resource "aws_iam_policy" "cross_account_s3_test_crossaccount_opsera_demo_access
         Sid    = "S3BucketAccess"
         Effect = "Allow"
         Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
           "s3:ListBucket",
           "s3:GetBucketLocation"
         ]
-        Resource = "arn:aws:s3:::${var.s3_bucket_name_test_crossaccount_opsera_demo}"
-      },
-      {
-        Sid    = "S3ObjectAccess"
-        Effect = "Allow"
-        Action = [
-          "s3:GetObject",
-          "s3:PutObject",
-          "s3:DeleteObject"
+        Resource = [
+          "arn:aws:s3:::${var.s3_bucket_name_test_crossaccount_opsera_demo}",
+          "arn:aws:s3:::${var.s3_bucket_name_test_crossaccount_opsera_demo}/*"
         ]
-        Resource = "arn:aws:s3:::${var.s3_bucket_name_test_crossaccount_opsera_demo}/*"
       }
     ]
   })
-
-  tags = {
-    service = "affinity-lambda"
-    env     = "dev"
-  }
 }
 
 resource "aws_iam_role_policy_attachment" "cross_account_s3_test_crossaccount_opsera_demo_access" {
@@ -189,12 +73,40 @@ resource "aws_iam_role_policy_attachment" "cross_account_s3_test_crossaccount_op
   policy_arn = aws_iam_policy.cross_account_s3_test_crossaccount_opsera_demo_access.arn
 }
 
+# ─── Permission Bridge: Secrets Manager (account 472496548172) ────────────────
+resource "aws_iam_policy" "cross_account_secretsmanager_affinity_test_secrets_access" {
+  name        = "lambda-secretsmanager-affinity-test-secrets-policy-dev"
+  description = "Policy granting Lambda role access to Secrets Manager secret affinity-test-secrets"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "SecretsManagerAccess"
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ]
+        Resource = [
+          "arn:aws:secretsmanager:${var.region}:${var.aws_account_id}:secret:${var.secrets_manager_secret_name}*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "cross_account_secretsmanager_affinity_test_secrets_access" {
+  role       = module.lambda_execution_role.role_name
+  policy_arn = aws_iam_policy.cross_account_secretsmanager_affinity_test_secrets_access.arn
+}
+
 
 # --- Resource Policies (auto-generated, preserving existing statements) ---
 
-resource "aws_s3_bucket_policy" "existing_s3_bucket_test_crossaccount_opsera_demo_policy" {
+resource "aws_s3_bucket_policy" "existing_s3_bucket_cross_account_policy" {
   provider = aws.acct_792373136340
-  bucket = var.existing_s3_bucket_test_crossaccount_opsera_demo_bucket_name
+  bucket = var.existing_s3_bucket_cross_account_bucket_name
 
   policy = jsonencode({
       "Version": "2012-10-17",
@@ -225,7 +137,7 @@ resource "aws_s3_bucket_policy" "existing_s3_bucket_test_crossaccount_opsera_dem
             "s3:PutObject",
             "s3:DeleteObject"
           ],
-          "Resource": "arn:aws:s3:::${var.existing_s3_bucket_test_crossaccount_opsera_demo_bucket_name}/*"
+          "Resource": "arn:aws:s3:::${var.existing_s3_bucket_cross_account_bucket_name}/*"
         },
         {
           "Sid": "Allowlambda_execution_iam_roleListBucket",
@@ -236,9 +148,35 @@ resource "aws_s3_bucket_policy" "existing_s3_bucket_test_crossaccount_opsera_dem
           "Action": [
             "s3:ListBucket"
           ],
-          "Resource": "arn:aws:s3:::${var.existing_s3_bucket_test_crossaccount_opsera_demo_bucket_name}"
+          "Resource": "arn:aws:s3:::${var.existing_s3_bucket_cross_account_bucket_name}"
         }
       ]
     })
   depends_on = [module.lambda_execution_role]
 }
+
+# --- MANUAL ACTION REQUIRED ---
+# Could not read the existing policy for secretsmanager "affinity-test-secrets"
+# in cross-account (provider: aws.acct_472496548172).
+# To avoid overwriting existing access, the following policy statements
+# must be ADDED to the resource policy manually (via AWS Console or CLI):
+#
+#   {
+#     "Version": "2012-10-17",
+#     "Statement": [
+#       {
+#         "Sid": "Allowlambda_execution_iam_roleSecretsAccess",
+#         "Effect": "Allow",
+#         "Principal": {
+#           "AWS": "__TF_ROLE:Lambda Execution IAM Role__"
+#         },
+#         "Action": [
+#           "secretsmanager:GetSecretValue",
+#           "secretsmanager:DescribeSecret"
+#         ],
+#         "Resource": "__TF_EXPR:${var.secrets_manager_secret_id}__"
+#       }
+#     ]
+#   }
+#
+# --- END MANUAL ACTION ---
