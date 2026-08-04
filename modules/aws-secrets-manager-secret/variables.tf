@@ -4,7 +4,7 @@ variable "name" {
 
   validation {
     condition     = length(var.name) >= 1 && length(var.name) <= 512
-    error_message = "The secret name must be between 1 and 512 characters."
+    error_message = "Secret name must be between 1 and 512 characters."
   }
 }
 
@@ -21,18 +21,18 @@ variable "kms_key_id" {
 }
 
 variable "recovery_window_in_days" {
-  description = "The number of days that AWS Secrets Manager waits before it can delete the secret. Set to 0 to force immediate deletion."
+  description = "The number of days that AWS Secrets Manager waits before it can delete the secret. Set to 0 to force immediate deletion with no recovery window."
   type        = number
   default     = 30
 
   validation {
     condition     = var.recovery_window_in_days == 0 || (var.recovery_window_in_days >= 7 && var.recovery_window_in_days <= 30)
-    error_message = "The recovery_window_in_days must be 0 (force delete) or between 7 and 30."
+    error_message = "recovery_window_in_days must be 0 (force delete) or between 7 and 30 days."
   }
 }
 
 variable "force_overwrite_replica_secret" {
-  description = "Whether to overwrite a secret with the same name in the destination region during replication."
+  description = "Whether to overwrite a secret with the same name in the destination Region when replicating."
   type        = bool
   default     = false
 }
@@ -47,27 +47,27 @@ variable "replica_regions" {
 }
 
 variable "secret_string" {
-  description = "The secret value to store as a plaintext string. Conflicts with secret_binary."
+  description = "The text data to store in the secret. Exactly one of secret_string or secret_binary must be set if creating a secret version."
   type        = string
   default     = null
   sensitive   = true
 }
 
 variable "secret_binary" {
-  description = "The secret value to store as binary data (base64-encoded). Conflicts with secret_string."
+  description = "The binary data to store in the secret. Must be base64-encoded. Exactly one of secret_string or secret_binary must be set if creating a secret version."
   type        = string
   default     = null
   sensitive   = true
 }
 
 variable "version_stages" {
-  description = "List of staging labels attached to this version of the secret. Defaults to ['AWSCURRENT']."
+  description = "List of staging labels attached to this version of the secret. If not specified, AWS Secrets Manager automatically moves the staging label AWSCURRENT to this version."
   type        = list(string)
   default     = null
 }
 
 variable "enable_rotation" {
-  description = "Whether to enable automatic secret rotation."
+  description = "Whether to enable automatic rotation for the secret."
   type        = bool
   default     = false
 }
@@ -95,13 +95,13 @@ variable "rotation_automatically_after_days" {
 }
 
 variable "secret_policy" {
-  description = "A valid JSON document representing a resource policy. Set to null to skip policy attachment."
+  description = "A valid JSON document representing a resource policy. If not set, no resource policy is attached."
   type        = string
   default     = null
 }
 
 variable "block_public_policy" {
-  description = "Whether to block public access to the secret via the resource policy."
+  description = "Whether to block resource-based policies that allow broad access to the secret."
   type        = bool
   default     = true
 }
