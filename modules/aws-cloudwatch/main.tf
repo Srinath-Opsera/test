@@ -33,13 +33,7 @@ resource "aws_cloudwatch_metric_alarm" "this" {
   treat_missing_data  = each.value.treat_missing_data
   datapoints_to_alarm = each.value.datapoints_to_alarm
   unit               = each.value.unit
-
-  dynamic "dimensions" {
-    for_each = each.value.dimensions != null ? [each.value.dimensions] : []
-    content {
-      for k, v in dimensions.value : k => v
-    }
-  }
+  dimensions          = each.value.dimensions != null ? each.value.dimensions : {}
 
   tags = merge(
     var.tags,
