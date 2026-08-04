@@ -1,32 +1,67 @@
-# Base template — per-environment files are generated below.
-# Environments: dev, qas
+region         = "us-east-1"
+aws_account_id = "472496548172"
 
-region = "us-east-1"
+# ─── Cross-account provider ───────────────────────────────────────────────────
+assume_role_arn_acct_792373136340         = ""
+assume_role_external_id_acct_792373136340 = ""
 
-# IAM Role
-lambda_role_name        = "belc-affinity-affinity-lambda-role-dev"
-lambda_role_description = "IAM execution role for Lambda function affinity-lambda"
+# ─── CloudWatch Log Group ─────────────────────────────────────────────────────
+log_groups = {
+  "belc-affinity-lambda-dev" = {
+    name              = "/aws/lambda/belc-affinity-lambda-dev"
+    retention_in_days = 30
+    tags = {
+      service = "lambda"
+}
+  }
+}
 
-# Security Group
-lambda_sg_name        = "belc-affinity-affinity-lambda-sg-dev"
-lambda_sg_description = "Security group for Lambda function outbound access"
-vpc_id                = "vpc-xxxxxxxxxxxxxxxxx"
+# ─── IAM Role ─────────────────────────────────────────────────────────────────
+iam_role_name                  = "belc-affinity-lambda-role-dev"
+iam_role_description           = "IAM execution role for Lambda function belc-affinity-lambda-dev"
+iam_role_path                  = "/"
+iam_role_max_session_duration  = 3600
+iam_role_force_detach_policies = false
 
-# Secrets Manager
-secret_name        = "affinity-affinity-lambda-dev"
-secret_description = "Secrets for affinity-lambda including AFFINITY_API_TOKEN, PGPASSWORD_QAS, and PGPASSWORD_DEV"
-secret_string = ""
+assume_role_principals = [
+  {
+    type        = "Service"
+    identifiers = ["lambda.amazonaws.com"]
+  }
+]
 
-# Permission Bridge — existing cross-account S3 bucket
+managed_policy_arns = [
+  "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+  "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+]
+
+# ─── Security Group ───────────────────────────────────────────────────────────
+security_group_name        = "sg-belc-affinity-lambda-dev"
+security_group_description = "Security group for Lambda function belc-affinity-lambda-dev"
+vpc_id                     = ""
+
+ingress_rules = []
+
+egress_rules = [
+  {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+]
+
+default_egress_allow_all = true
+revoke_rules_on_delete   = false
+
+# ─── Permission Bridge Variables ──────────────────────────────────────────────
 s3_bucket_name_test_crossaccount_opsera_demo = "test-crossaccount-opsera-demo"
-
-# Cross-account provider credentials (account 792373136340)
-assume_role_arn_acct_792373136340          = ""
-assume_role_external_id_acct_792373136340  = ""
+secrets_manager_secret_name                  = "affinity-test-secrets"
 
 default_tags = {
   grupo = "affinity"
-  service = "affinity-lambda"
+  service = "lambda"
   environment = "dev"
   managed_by = "cloudforge"
 }
