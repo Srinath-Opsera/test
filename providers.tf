@@ -7,7 +7,6 @@ terraform {
   }
 }
 
-# Default provider — primary account 472496548172
 provider "aws" {
   region = var.region
 
@@ -16,7 +15,6 @@ provider "aws" {
   }
 }
 
-# Aliased provider — additional account 792373136340
 provider "aws" {
   alias  = "acct_792373136340"
   region = var.region
