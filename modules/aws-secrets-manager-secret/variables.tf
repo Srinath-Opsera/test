@@ -27,12 +27,12 @@ variable "recovery_window_in_days" {
 
   validation {
     condition     = var.recovery_window_in_days == 0 || (var.recovery_window_in_days >= 7 && var.recovery_window_in_days <= 30)
-    error_message = "recovery_window_in_days must be 0 (force delete) or between 7 and 30 days."
+    error_message = "recovery_window_in_days must be 0 (force delete) or between 7 and 30."
   }
 }
 
 variable "force_overwrite_replica_secret" {
-  description = "Whether to overwrite a secret with the same name in the destination region during replication."
+  description = "Whether to overwrite a secret with the same name in the destination Region when replicating."
   type        = bool
   default     = false
 }
@@ -54,7 +54,7 @@ variable "secret_string" {
 }
 
 variable "secret_binary" {
-  description = "The secret value to store as binary data, base64-encoded. Conflicts with secret_string."
+  description = "The secret value to store as binary data (base64-encoded). Conflicts with secret_string."
   type        = string
   default     = null
   sensitive   = true
@@ -67,7 +67,7 @@ variable "version_stages" {
 }
 
 variable "enable_rotation" {
-  description = "Whether to enable automatic rotation for the secret."
+  description = "Whether to enable automatic secret rotation via a Lambda function."
   type        = bool
   default     = false
 }
@@ -95,7 +95,7 @@ variable "rotation_automatically_after_days" {
 }
 
 variable "secret_policy" {
-  description = "A valid JSON document representing a resource-based policy to attach to the secret. Set to null to skip policy creation."
+  description = "A valid JSON policy document to attach to the secret. If null, no resource policy is created."
   type        = string
   default     = null
 }
