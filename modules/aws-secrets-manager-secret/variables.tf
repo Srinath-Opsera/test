@@ -27,7 +27,7 @@ variable "recovery_window_in_days" {
 
   validation {
     condition     = var.recovery_window_in_days == 0 || (var.recovery_window_in_days >= 7 && var.recovery_window_in_days <= 30)
-    error_message = "recovery_window_in_days must be 0 (force delete) or between 7 and 30."
+    error_message = "recovery_window_in_days must be 0 (force delete) or between 7 and 30 days."
   }
 }
 
@@ -47,27 +47,27 @@ variable "replica_regions" {
 }
 
 variable "secret_string" {
-  description = "The secret value to store as a plaintext string. Conflicts with secret_binary. Use a JSON-encoded string for structured secrets."
+  description = "The text data to store in the secret. Either secret_string or secret_binary must be set, but not both."
   type        = string
   default     = null
   sensitive   = true
 }
 
 variable "secret_binary" {
-  description = "The secret value to store as binary data (base64-encoded). Conflicts with secret_string."
+  description = "The binary data to store in the secret. Either secret_string or secret_binary must be set, but not both. Must be base64-encoded."
   type        = string
   default     = null
   sensitive   = true
 }
 
 variable "version_stages" {
-  description = "List of staging labels attached to this version of the secret. If not specified, AWS assigns the AWSCURRENT label."
+  description = "List of staging labels attached to this version of the secret. Defaults to ['AWSCURRENT']."
   type        = list(string)
   default     = null
 }
 
 variable "enable_rotation" {
-  description = "Whether to enable automatic secret rotation via a Lambda function."
+  description = "Whether to enable automatic rotation for the secret."
   type        = bool
   default     = false
 }
@@ -95,7 +95,7 @@ variable "rotation_automatically_after_days" {
 }
 
 variable "secret_policy" {
-  description = "A valid JSON policy document to attach to the secret. If null, no resource policy is created."
+  description = "A valid JSON document representing a resource policy. Set to null to skip policy attachment."
   type        = string
   default     = null
 }
