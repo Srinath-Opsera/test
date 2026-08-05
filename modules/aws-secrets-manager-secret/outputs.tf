@@ -20,13 +20,13 @@ output "secret_version_id" {
 
 output "rotation_enabled" {
   description = "Whether automatic rotation is enabled for the secret."
-  value       = aws_secretsmanager_secret.this.rotation_enabled
+  value       = length(aws_secretsmanager_secret_rotation.this) > 0
 }
 
 output "replica_arns" {
   description = "A map of replica region to replica secret ARN."
   value = {
     for r in aws_secretsmanager_secret.this.replica :
-    r.region => r.last_accessed_date
+    r.region => r.arn
   }
 }
