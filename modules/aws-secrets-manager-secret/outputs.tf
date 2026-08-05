@@ -20,7 +20,7 @@ output "secret_version_id" {
 
 output "rotation_enabled" {
   description = "Whether automatic rotation is enabled for the secret."
-  value       = length(aws_secretsmanager_secret_rotation.this) > 0
+  value       = aws_secretsmanager_secret.this.rotation_enabled
 }
 
 output "replica_arns" {
