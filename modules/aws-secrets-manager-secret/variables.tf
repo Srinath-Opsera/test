@@ -61,7 +61,7 @@ variable "secret_binary" {
 }
 
 variable "version_stages" {
-  description = "List of staging labels attached to this version of the secret. If not specified, AWS assigns the AWSCURRENT label."
+  description = "List of staging labels attached to this version of the secret. Defaults to ['AWSCURRENT']."
   type        = list(string)
   default     = null
 }
@@ -73,7 +73,7 @@ variable "enable_rotation" {
 }
 
 variable "rotation_lambda_arn" {
-  description = "The ARN of the Lambda function that rotates the secret. Required when enable_rotation is true."
+  description = "The ARN of the Lambda function that can rotate the secret. Required when enable_rotation is true."
   type        = string
   default     = null
 
@@ -95,7 +95,7 @@ variable "rotation_automatically_after_days" {
 }
 
 variable "secret_policy" {
-  description = "A valid JSON document representing a resource-based policy to attach to the secret. Set to null to skip policy creation."
+  description = "A valid JSON document representing a resource policy for the secret. Set to null to skip policy attachment."
   type        = string
   default     = null
 }
