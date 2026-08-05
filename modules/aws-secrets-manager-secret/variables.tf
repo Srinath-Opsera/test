@@ -27,7 +27,7 @@ variable "recovery_window_in_days" {
 
   validation {
     condition     = var.recovery_window_in_days == 0 || (var.recovery_window_in_days >= 7 && var.recovery_window_in_days <= 30)
-    error_message = "recovery_window_in_days must be 0 (force delete) or between 7 and 30."
+    error_message = "recovery_window_in_days must be 0 (force delete) or between 7 and 30 days."
   }
 }
 
@@ -38,7 +38,7 @@ variable "force_overwrite_replica_secret" {
 }
 
 variable "replica_regions" {
-  description = "List of replica region configurations. Each object must have a 'region' key and an optional 'kms_key_id' key."
+  description = "List of objects defining replica regions. Each object must have a 'region' key and an optional 'kms_key_id' key."
   type = list(object({
     region     = string
     kms_key_id = optional(string)
@@ -47,7 +47,7 @@ variable "replica_regions" {
 }
 
 variable "secret_string" {
-  description = "The secret value to store as a plaintext string. Conflicts with secret_binary. Use a JSON-encoded string for structured secrets."
+  description = "The secret value to store as a plaintext string. Conflicts with secret_binary."
   type        = string
   default     = null
   sensitive   = true
@@ -67,7 +67,7 @@ variable "version_stages" {
 }
 
 variable "enable_rotation" {
-  description = "Whether to enable automatic secret rotation via a Lambda function."
+  description = "Whether to enable automatic rotation for the secret."
   type        = bool
   default     = false
 }
@@ -95,7 +95,7 @@ variable "rotation_automatically_after_days" {
 }
 
 variable "secret_policy" {
-  description = "A valid JSON document representing a resource policy for the secret. Set to null to skip policy attachment."
+  description = "A valid JSON document representing a resource policy. Set to null to skip policy creation."
   type        = string
   default     = null
 }
