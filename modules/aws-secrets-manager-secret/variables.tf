@@ -4,7 +4,7 @@ variable "name" {
 
   validation {
     condition     = length(var.name) >= 1 && length(var.name) <= 512
-    error_message = "Secret name must be between 1 and 512 characters."
+    error_message = "The secret name must be between 1 and 512 characters."
   }
 }
 
@@ -27,7 +27,7 @@ variable "recovery_window_in_days" {
 
   validation {
     condition     = var.recovery_window_in_days == 0 || (var.recovery_window_in_days >= 7 && var.recovery_window_in_days <= 30)
-    error_message = "recovery_window_in_days must be 0 (force delete) or between 7 and 30 days."
+    error_message = "The recovery_window_in_days must be 0 (force delete) or between 7 and 30 days."
   }
 }
 
@@ -47,21 +47,21 @@ variable "replica_regions" {
 }
 
 variable "secret_string" {
-  description = "The secret value to store as a plaintext string. Conflicts with secret_binary."
+  description = "The secret value to store in the secret. Either secret_string or secret_binary must be set, but not both."
   type        = string
   default     = null
   sensitive   = true
 }
 
 variable "secret_binary" {
-  description = "The secret value to store as binary data (base64-encoded). Conflicts with secret_string."
+  description = "The secret value in binary format to store in the secret. Either secret_string or secret_binary must be set, but not both."
   type        = string
   default     = null
   sensitive   = true
 }
 
 variable "version_stages" {
-  description = "List of staging labels attached to this version of the secret. Defaults to ['AWSCURRENT']."
+  description = "List of staging labels attached to this version of the secret. A staging label must be unique to a single version of the secret."
   type        = list(string)
   default     = null
 }
@@ -95,7 +95,7 @@ variable "rotation_automatically_after_days" {
 }
 
 variable "secret_policy" {
-  description = "A valid JSON document representing a resource policy. Set to null to skip policy creation."
+  description = "A valid JSON document representing a resource policy. If not set, no resource policy is attached."
   type        = string
   default     = null
 }
