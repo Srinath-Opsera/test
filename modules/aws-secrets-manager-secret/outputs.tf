@@ -1,15 +1,15 @@
-output "secret_arn" {
-  description = "The ARN of the Secrets Manager secret."
-  value       = aws_secretsmanager_secret.this.arn
-}
-
 output "secret_id" {
-  description = "The ID of the Secrets Manager secret (same as the ARN)."
+  description = "The ID of the secret (same as the ARN)."
   value       = aws_secretsmanager_secret.this.id
 }
 
+output "secret_arn" {
+  description = "The ARN of the secret."
+  value       = aws_secretsmanager_secret.this.arn
+}
+
 output "secret_name" {
-  description = "The name of the Secrets Manager secret."
+  description = "The name of the secret."
   value       = aws_secretsmanager_secret.this.name
 }
 
@@ -20,13 +20,15 @@ output "secret_version_id" {
 
 output "rotation_enabled" {
   description = "Whether automatic rotation is enabled for the secret."
-  value       = length(aws_secretsmanager_secret_rotation.this) > 0
+  value       = aws_secretsmanager_secret.this.rotation_enabled
 }
 
-output "replica_arns" {
-  description = "A map of replica region to replica secret ARN."
-  value = {
-    for r in aws_secretsmanager_secret.this.replica :
-    r.region => r.arn
-  }
+output "kms_key_id" {
+  description = "The KMS key ID used to encrypt the secret."
+  value       = aws_secretsmanager_secret.this.kms_key_id
+}
+
+output "replica_regions" {
+  description = "The list of regions where the secret is replicated."
+  value       = aws_secretsmanager_secret.this.replica
 }
