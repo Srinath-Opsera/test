@@ -1,5 +1,5 @@
 variable "name" {
-  description = "The name of the ECR repository."
+  description = "Name of the ECR repository."
   type        = string
 
   validation {
@@ -9,13 +9,13 @@ variable "name" {
 }
 
 variable "image_tag_mutability" {
-  description = "The tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE."
+  description = "The tag mutability setting for the repository. Must be one of MUTABLE or IMMUTABLE."
   type        = string
   default     = "IMMUTABLE"
 
   validation {
     condition     = contains(["MUTABLE", "IMMUTABLE"], var.image_tag_mutability)
-    error_message = "image_tag_mutability must be either 'MUTABLE' or 'IMMUTABLE'."
+    error_message = "image_tag_mutability must be either MUTABLE or IMMUTABLE."
   }
 }
 
@@ -26,13 +26,13 @@ variable "scan_on_push" {
 }
 
 variable "encryption_type" {
-  description = "The encryption type to use for the repository. Valid values are AES256 or KMS. Set to null to use the default AES256 encryption without an explicit block."
+  description = "The encryption type to use for the repository. Valid values are AES256 or KMS. Set to null to use the default AES256 encryption without an explicit configuration block."
   type        = string
   default     = "AES256"
 
   validation {
     condition     = var.encryption_type == null || contains(["AES256", "KMS"], var.encryption_type)
-    error_message = "encryption_type must be 'AES256', 'KMS', or null."
+    error_message = "encryption_type must be AES256, KMS, or null."
   }
 }
 
@@ -49,19 +49,19 @@ variable "force_delete" {
 }
 
 variable "lifecycle_policy" {
-  description = "A JSON-encoded ECR lifecycle policy document. If null, no lifecycle policy is created."
+  description = "JSON-encoded ECR lifecycle policy document. Set to null to skip creating a lifecycle policy."
   type        = string
   default     = null
 }
 
 variable "repository_policy" {
-  description = "A JSON-encoded ECR repository policy document. If null, no repository policy is created."
+  description = "JSON-encoded ECR repository policy document. Set to null to skip creating a repository policy."
   type        = string
   default     = null
 }
 
 variable "replication_destinations" {
-  description = "A list of replication destination objects, each with 'region' and 'registry_id' attributes."
+  description = "List of replication destination objects, each with region and registry_id attributes."
   type = list(object({
     region      = string
     registry_id = string
@@ -70,7 +70,7 @@ variable "replication_destinations" {
 }
 
 variable "replication_filters" {
-  description = "A list of repository filter objects for replication rules, each with 'filter' and 'filter_type' attributes. filter_type must be PREFIX_MATCH."
+  description = "List of repository filter objects for replication rules, each with filter and filter_type attributes. filter_type must be PREFIX_MATCH."
   type = list(object({
     filter      = string
     filter_type = string
@@ -79,12 +79,12 @@ variable "replication_filters" {
 
   validation {
     condition     = alltrue([for f in var.replication_filters : contains(["PREFIX_MATCH"], f.filter_type)])
-    error_message = "Each replication filter's filter_type must be 'PREFIX_MATCH'."
+    error_message = "Each replication filter's filter_type must be PREFIX_MATCH."
   }
 }
 
 variable "tags" {
-  description = "A map of tags to assign to the resources."
+  description = "A map of tags to assign to the repository."
   type        = map(string)
   default     = {}
 }
