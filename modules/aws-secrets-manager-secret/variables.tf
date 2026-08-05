@@ -27,12 +27,12 @@ variable "recovery_window_in_days" {
 
   validation {
     condition     = var.recovery_window_in_days == 0 || (var.recovery_window_in_days >= 7 && var.recovery_window_in_days <= 30)
-    error_message = "recovery_window_in_days must be 0 (force delete) or between 7 and 30 days."
+    error_message = "recovery_window_in_days must be 0 (force delete) or between 7 and 30."
   }
 }
 
 variable "force_overwrite_replica_secret" {
-  description = "Whether to overwrite a secret with the same name in the destination Region when replicating."
+  description = "Whether to overwrite a secret with the same name in the destination region during replication."
   type        = bool
   default     = false
 }
@@ -47,33 +47,33 @@ variable "replica_regions" {
 }
 
 variable "secret_string" {
-  description = "The text data to store in the secret. Either secret_string or secret_binary must be set, but not both."
+  description = "The secret value to store as a plaintext string. Conflicts with secret_binary. Use a JSON-encoded string for structured secrets."
   type        = string
   default     = null
   sensitive   = true
 }
 
 variable "secret_binary" {
-  description = "The binary data to store in the secret. Either secret_string or secret_binary must be set, but not both. Must be base64-encoded."
+  description = "The secret value to store as binary data (base64-encoded). Conflicts with secret_string."
   type        = string
   default     = null
   sensitive   = true
 }
 
 variable "version_stages" {
-  description = "List of staging labels attached to this version of the secret. Defaults to ['AWSCURRENT']."
+  description = "List of staging labels attached to this version of the secret. If not specified, AWS assigns the AWSCURRENT label."
   type        = list(string)
   default     = null
 }
 
 variable "enable_rotation" {
-  description = "Whether to enable automatic rotation for the secret."
+  description = "Whether to enable automatic secret rotation via a Lambda function."
   type        = bool
   default     = false
 }
 
 variable "rotation_lambda_arn" {
-  description = "The ARN of the Lambda function that can rotate the secret. Required when enable_rotation is true."
+  description = "The ARN of the Lambda function that rotates the secret. Required when enable_rotation is true."
   type        = string
   default     = null
 
@@ -95,7 +95,7 @@ variable "rotation_automatically_after_days" {
 }
 
 variable "secret_policy" {
-  description = "A valid JSON document representing a resource policy. Set to null to skip policy attachment."
+  description = "A valid JSON document representing a resource-based policy to attach to the secret. Set to null to skip policy creation."
   type        = string
   default     = null
 }
