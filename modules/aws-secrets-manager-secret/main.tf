@@ -28,16 +28,9 @@ resource "aws_secretsmanager_secret_version" "this" {
   count = var.secret_string != null || var.secret_binary != null ? 1 : 0
 
   secret_id      = aws_secretsmanager_secret.this.id
-  secret_string  = var.secret_string != null ? (var.secret_is_json ? jsonencode(var.secret_string_json) : var.secret_string) : null
+  secret_string  = var.secret_string
   secret_binary  = var.secret_binary
   version_stages = var.version_stages
-
-  lifecycle {
-    ignore_changes = [
-      secret_string,
-      secret_binary,
-    ]
-  }
 }
 
 resource "aws_secretsmanager_secret_rotation" "this" {
