@@ -11,7 +11,7 @@ module "terraform-aws-vpc--vpc" {
   enable_dns_hostnames = var.vpc_enable_dns_hostnames
   enable_dns_support   = var.vpc_enable_dns_support
   map_public_ip_on_launch = var.vpc_map_public_ip_on_launch
-  tags                 = var.vpc_tags
+  tags                 = {}
 }
 
 module "terraform-aws-subnet--subnet" {
@@ -29,7 +29,7 @@ module "terraform-aws-subnet--subnet" {
   default_route_target_id       = var.subnet_default_route_target_id
   default_route_target_type     = var.subnet_default_route_target_type
   additional_routes             = var.subnet_additional_routes
-  tags                          = var.subnet_tags
+  tags                          = {}
 }
 
 module "terraform-aws-security-group--lambda-security-group" {
@@ -42,22 +42,22 @@ module "terraform-aws-security-group--lambda-security-group" {
   egress_rules            = var.security_group_egress_rules
   default_egress_allow_all = var.security_group_default_egress_allow_all
   revoke_rules_on_delete  = var.security_group_revoke_rules_on_delete
-  tags                    = var.security_group_tags
+  tags                    = {}
 }
 
 module "terraform-aws-iam-role--lambda-execution-iam-role" {
   source = "./modules/terraform-aws-iam-role"
 
   name                    = var.iam_role_name
-  assume_role_principals  = var.iam_role_assume_role_principals
   description             = var.iam_role_description
+  assume_role_principals  = var.iam_role_assume_role_principals
   path                    = var.iam_role_path
   max_session_duration    = var.iam_role_max_session_duration
   managed_policy_arns     = var.iam_role_managed_policy_arns
   inline_policies         = var.iam_role_inline_policies
   permissions_boundary    = var.iam_role_permissions_boundary
   force_detach_policies   = var.iam_role_force_detach_policies
-  tags                    = var.iam_role_tags
+  tags                    = {}
 }
 
 module "aws-ecr-repository" {
@@ -73,7 +73,7 @@ module "aws-ecr-repository" {
   repository_policy        = var.ecr_repository_policy
   replication_destinations = var.ecr_replication_destinations
   replication_filters      = var.ecr_replication_filters
-  tags                     = var.ecr_tags
+  tags                     = {}
 }
 
 module "aws-cloudwatch--cloudwatch-log-group" {
@@ -85,7 +85,7 @@ module "aws-cloudwatch--cloudwatch-log-group" {
   log_streams   = var.log_streams
   event_rules   = var.event_rules
   event_targets = var.event_targets
-  tags          = var.cloudwatch_tags
+  tags          = {}
 }
 
 module "aws-lambda-function" {
@@ -94,38 +94,50 @@ module "aws-lambda-function" {
   function_name                  = var.lambda_function_name
   environment                    = var.lambda_environment
   description                    = var.lambda_description
-  tags                           = var.lambda_tags
   package_type                   = var.lambda_package_type
-  image_uri                      = var.lambda_image_uri
+  runtime                        = var.lambda_runtime
+  handler                        = var.lambda_handler
   architecture                   = var.lambda_architecture
-  memory_size                    = var.lambda_memory_size
+  image_uri                      = var.lambda_image_uri
+  image_config                   = var.lambda_image_config
   timeout                        = var.lambda_timeout
+  memory_size                    = var.lambda_memory_size
   reserved_concurrent_executions = var.lambda_reserved_concurrent_executions
-  layers                         = var.lambda_layers
   publish                        = var.lambda_publish
+  layers                         = var.lambda_layers
   environment_variables          = var.lambda_environment_variables
   create_iam_role                = var.lambda_create_iam_role
   iam_role_name                  = var.lambda_iam_role_name
+  iam_role_permissions_boundary  = var.lambda_iam_role_permissions_boundary
   existing_iam_role_arn          = var.lambda_existing_iam_role_arn
   additional_policy_arns         = var.lambda_additional_policy_arns
   inline_policy_json             = var.lambda_inline_policy_json
-  vpc_subnet_ids                 = module.terraform-aws-vpc--vpc.private_subnet_ids
   vpc_id                         = module.terraform-aws-vpc--vpc.vpc_id
+  vpc_subnet_ids                 = module.terraform-aws-vpc--vpc.private_subnet_ids
   vpc_security_group_ids         = [module.terraform-aws-security-group--lambda-security-group.security_group_id]
   create_security_group          = false
   create_cloudwatch_log_group    = var.lambda_create_cloudwatch_log_group
-  log_retention_in_days          = var.lambda_log_retention_in_days
-  log_kms_key_id                 = var.lambda_log_kms_key_id
-  tracing_mode                   = var.lambda_tracing_mode
+  cloudwatch_logs_retention_days = var.lambda_cloudwatch_logs_retention_days
+  cloudwatch_logs_kms_key_id     = var.lambda_cloudwatch_logs_kms_key_id
+  kms_key_arn                    = var.lambda_kms_key_arn
   dead_letter_target_arn         = var.lambda_dead_letter_target_arn
-  aliases                        = var.lambda_aliases
+  tracing_mode                   = var.lambda_tracing_mode
+  file_system_arn                = var.lambda_file_system_arn
+  file_system_local_mount_path   = var.lambda_file_system_local_mount_path
+  create_alias                   = var.lambda_create_alias
+  alias_name                     = var.lambda_alias_name
+  alias_description              = var.lambda_alias_description
+  alias_function_version         = var.lambda_alias_function_version
   create_function_url            = var.lambda_create_function_url
   function_url_authorization_type = var.lambda_function_url_authorization_type
+  function_url_cors              = var.lambda_function_url_cors
   lambda_permissions             = var.lambda_permissions
   event_source_mappings          = var.lambda_event_source_mappings
+  snap_start_apply_on            = var.lambda_snap_start_apply_on
+  tags                           = {}
 }
 
-# Cross-account S3 access policy for Lambda Execution IAM Role
+# Cross-account S3 identity-side IAM policy for Lambda and Lambda Execution IAM Role
 resource "aws_iam_policy" "cross_account_s3_test_crossaccount_opsera_demo_access" {
   name        = "lambda-function-s3-test-crossaccount-opsera-demo-policy-dev"
   description = "Read and write access to S3 bucket test-crossaccount-opsera-demo"
@@ -151,13 +163,13 @@ resource "aws_iam_policy" "cross_account_s3_test_crossaccount_opsera_demo_access
   })
 }
 
-resource "aws_iam_role_policy_attachment" "cross_account_s3_test_crossaccount_opsera_demo_access_lambda_execution_role" {
-  role       = module.terraform-aws-iam-role--lambda-execution-iam-role.role_name
+resource "aws_iam_role_policy_attachment" "cross_account_s3_test_crossaccount_opsera_demo_access_lambda" {
+  role       = module.aws-lambda-function.iam_role_name
   policy_arn = aws_iam_policy.cross_account_s3_test_crossaccount_opsera_demo_access.arn
 }
 
-resource "aws_iam_role_policy_attachment" "cross_account_s3_test_crossaccount_opsera_demo_access_lambda_function_role" {
-  role       = module.aws-lambda-function.iam_role_name
+resource "aws_iam_role_policy_attachment" "cross_account_s3_test_crossaccount_opsera_demo_access_exec_role" {
+  role       = module.terraform-aws-iam-role--lambda-execution-iam-role.role_name
   policy_arn = aws_iam_policy.cross_account_s3_test_crossaccount_opsera_demo_access.arn
 }
 
