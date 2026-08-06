@@ -15,7 +15,7 @@ output "secret_name" {
 
 output "secret_version_id" {
   description = "The unique identifier of the version of the secret."
-  value       = length(aws_secretsmanager_secret_version.this) > 0 ? aws_secretsmanager_secret_version.this[0].version_id : null
+  value       = try(aws_secretsmanager_secret_version.this[0].version_id, null)
 }
 
 output "rotation_enabled" {
@@ -23,7 +23,7 @@ output "rotation_enabled" {
   value       = length(aws_secretsmanager_secret_rotation.this) > 0
 }
 
-output "replica_arns" {
-  description = "A list of ARNs for the replica secrets in other regions."
-  value       = [for r in aws_secretsmanager_secret.this.replica : r.arn]
+output "kms_key_id" {
+  description = "The KMS key ID used to encrypt the secret, if any."
+  value       = aws_secretsmanager_secret.this.kms_key_id
 }
