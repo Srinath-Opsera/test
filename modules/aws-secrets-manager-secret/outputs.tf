@@ -1,5 +1,5 @@
 output "secret_id" {
-  description = "The ID of the secret."
+  description = "The ID of the secret (same as the ARN)."
   value       = aws_secretsmanager_secret.this.id
 }
 
@@ -24,9 +24,6 @@ output "rotation_enabled" {
 }
 
 output "replica_arns" {
-  description = "A map of replica region to replica secret ARN."
-  value = {
-    for r in aws_secretsmanager_secret.this.replica :
-    r.region => r.arn
-  }
+  description = "A list of ARNs for the replica secrets in other regions."
+  value       = [for r in aws_secretsmanager_secret.this.replica : r.arn]
 }
