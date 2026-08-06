@@ -10,7 +10,6 @@ variable "default_tags" {
   default     = {}
 }
 
-# Cross-account provider variables
 variable "assume_role_arn_acct_792373136340" {
   type        = string
   description = "IAM role ARN to assume in account 792373136340"
@@ -18,15 +17,8 @@ variable "assume_role_arn_acct_792373136340" {
 
 variable "assume_role_external_id_acct_792373136340" {
   type        = string
-  description = "External ID for assume role in account 792373136340"
+  description = "External ID for role assumption in account 792373136340"
   default     = ""
-}
-
-# Existing resource variables
-variable "s3_bucket_name" {
-  type        = string
-  description = "S3 bucket name"
-  default     = "test-crossaccount-opsera-demo"
 }
 
 # VPC variables
@@ -78,12 +70,6 @@ variable "vpc_enable_dns_support" {
 variable "vpc_map_public_ip_on_launch" {
   type        = bool
   description = "VPC map public IP on launch"
-}
-
-variable "vpc_tags" {
-  type        = map(string)
-  description = "VPC tags"
-  default     = {}
 }
 
 # Subnet variables
@@ -153,12 +139,6 @@ variable "subnet_additional_routes" {
   default     = []
 }
 
-variable "subnet_tags" {
-  type        = map(string)
-  description = "Subnet tags"
-  default     = {}
-}
-
 # Security group variables
 variable "security_group_name" {
   type        = string
@@ -210,16 +190,15 @@ variable "security_group_revoke_rules_on_delete" {
   description = "Security group revoke rules on delete"
 }
 
-variable "security_group_tags" {
-  type        = map(string)
-  description = "Security group tags"
-  default     = {}
-}
-
 # IAM role variables
 variable "iam_role_name" {
   type        = string
   description = "IAM role name"
+}
+
+variable "iam_role_description" {
+  type        = string
+  description = "IAM role description"
 }
 
 variable "iam_role_assume_role_principals" {
@@ -228,11 +207,6 @@ variable "iam_role_assume_role_principals" {
     identifiers = list(string)
   }))
   description = "IAM role assume role principals"
-}
-
-variable "iam_role_description" {
-  type        = string
-  description = "IAM role description"
 }
 
 variable "iam_role_path" {
@@ -248,7 +222,6 @@ variable "iam_role_max_session_duration" {
 variable "iam_role_managed_policy_arns" {
   type        = list(string)
   description = "IAM role managed policy ARNs"
-  default     = []
 }
 
 variable "iam_role_inline_policies" {
@@ -269,12 +242,6 @@ variable "iam_role_permissions_boundary" {
 variable "iam_role_force_detach_policies" {
   type        = bool
   description = "IAM role force detach policies"
-}
-
-variable "iam_role_tags" {
-  type        = map(string)
-  description = "IAM role tags"
-  default     = {}
 }
 
 # ECR variables
@@ -337,12 +304,6 @@ variable "ecr_replication_filters" {
   }))
   description = "ECR replication filters"
   default     = []
-}
-
-variable "ecr_tags" {
-  type        = map(string)
-  description = "ECR tags"
-  default     = {}
 }
 
 # CloudWatch variables
@@ -422,12 +383,6 @@ variable "event_targets" {
   default     = {}
 }
 
-variable "cloudwatch_tags" {
-  type        = map(string)
-  description = "CloudWatch tags"
-  default     = {}
-}
-
 # Lambda variables
 variable "lambda_function_name" {
   type        = string
@@ -444,22 +399,19 @@ variable "lambda_description" {
   description = "Lambda description"
 }
 
-variable "lambda_tags" {
-  type        = map(string)
-  description = "Lambda tags"
-  default     = {}
-}
-
 variable "lambda_package_type" {
   type        = string
   description = "Lambda package type"
 }
 
-variable "lambda_image_uri" {
+variable "lambda_runtime" {
   type        = string
-  # Placeholder — replaced by CI/CD pipeline after first image push
-  description = "Lambda image URI"
-  default     = "472496548172.dkr.ecr.us-east-1.amazonaws.com/lambda-container-repo:latest"
+  description = "Lambda runtime"
+}
+
+variable "lambda_handler" {
+  type        = string
+  description = "Lambda handler"
 }
 
 variable "lambda_architecture" {
@@ -467,9 +419,17 @@ variable "lambda_architecture" {
   description = "Lambda architecture"
 }
 
-variable "lambda_memory_size" {
-  type        = number
-  description = "Lambda memory size"
+variable "lambda_image_uri" {
+  type        = string
+  description = "Lambda image URI"
+  # Placeholder — replaced by CI/CD pipeline after first image push
+  default     = null
+}
+
+variable "lambda_image_config" {
+  type        = map(any)
+  description = "Lambda image config"
+  default     = null
 }
 
 variable "lambda_timeout" {
@@ -477,20 +437,25 @@ variable "lambda_timeout" {
   description = "Lambda timeout"
 }
 
+variable "lambda_memory_size" {
+  type        = number
+  description = "Lambda memory size"
+}
+
 variable "lambda_reserved_concurrent_executions" {
   type        = number
   description = "Lambda reserved concurrent executions"
+}
+
+variable "lambda_publish" {
+  type        = bool
+  description = "Lambda publish"
 }
 
 variable "lambda_layers" {
   type        = list(string)
   description = "Lambda layers"
   default     = []
-}
-
-variable "lambda_publish" {
-  type        = bool
-  description = "Lambda publish"
 }
 
 variable "lambda_environment_variables" {
@@ -507,6 +472,12 @@ variable "lambda_create_iam_role" {
 variable "lambda_iam_role_name" {
   type        = string
   description = "Lambda IAM role name"
+}
+
+variable "lambda_iam_role_permissions_boundary" {
+  type        = string
+  description = "Lambda IAM role permissions boundary"
+  default     = null
 }
 
 variable "lambda_existing_iam_role_arn" {
@@ -532,20 +503,20 @@ variable "lambda_create_cloudwatch_log_group" {
   description = "Lambda create CloudWatch log group"
 }
 
-variable "lambda_log_retention_in_days" {
+variable "lambda_cloudwatch_logs_retention_days" {
   type        = number
-  description = "Lambda log retention in days"
+  description = "Lambda CloudWatch logs retention days"
 }
 
-variable "lambda_log_kms_key_id" {
+variable "lambda_cloudwatch_logs_kms_key_id" {
   type        = string
-  description = "Lambda log KMS key ID"
+  description = "Lambda CloudWatch logs KMS key ID"
   default     = null
 }
 
-variable "lambda_tracing_mode" {
+variable "lambda_kms_key_arn" {
   type        = string
-  description = "Lambda tracing mode"
+  description = "Lambda KMS key ARN"
   default     = null
 }
 
@@ -555,14 +526,43 @@ variable "lambda_dead_letter_target_arn" {
   default     = null
 }
 
-variable "lambda_aliases" {
-  type = map(object({
-    description              = optional(string)
-    function_version         = optional(string, "$LATEST")
-    additional_version_weights = optional(map(number))
-  }))
-  description = "Lambda aliases"
-  default     = {}
+variable "lambda_tracing_mode" {
+  type        = string
+  description = "Lambda tracing mode"
+  default     = null
+}
+
+variable "lambda_file_system_arn" {
+  type        = string
+  description = "Lambda file system ARN"
+  default     = null
+}
+
+variable "lambda_file_system_local_mount_path" {
+  type        = string
+  description = "Lambda file system local mount path"
+  default     = null
+}
+
+variable "lambda_create_alias" {
+  type        = bool
+  description = "Lambda create alias"
+}
+
+variable "lambda_alias_name" {
+  type        = string
+  description = "Lambda alias name"
+}
+
+variable "lambda_alias_description" {
+  type        = string
+  description = "Lambda alias description"
+}
+
+variable "lambda_alias_function_version" {
+  type        = string
+  description = "Lambda alias function version"
+  default     = null
 }
 
 variable "lambda_create_function_url" {
@@ -575,29 +575,34 @@ variable "lambda_function_url_authorization_type" {
   description = "Lambda function URL authorization type"
 }
 
+variable "lambda_function_url_cors" {
+  type        = map(any)
+  description = "Lambda function URL CORS"
+  default     = null
+}
+
 variable "lambda_permissions" {
-  type = map(object({
-    action             = optional(string, "lambda:InvokeFunction")
-    principal          = string
-    source_arn         = optional(string)
-    source_account     = optional(string)
-    qualifier          = optional(string)
-    event_source_token = optional(string)
-  }))
+  type        = list(map(string))
   description = "Lambda permissions"
-  default     = {}
+  default     = []
 }
 
 variable "lambda_event_source_mappings" {
-  type = map(object({
-    event_source_arn  = string
-    enabled           = optional(bool, true)
-    batch_size        = optional(number)
-    starting_position = optional(string)
-    filter_patterns   = optional(list(string))
-  }))
+  type        = list(map(any))
   description = "Lambda event source mappings"
-  default     = {}
+  default     = []
+}
+
+variable "lambda_snap_start_apply_on" {
+  type        = string
+  description = "Lambda snap start apply on"
+  default     = null
+}
+
+# Permission bridge variables
+variable "s3_bucket_name" {
+  type        = string
+  description = "S3 bucket name"
 }
 
 
