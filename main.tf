@@ -1,221 +1,216 @@
-# VPC
-module "vpc--vpc" {
-  source  = "app.terraform.io/TF01/vpc/aws"
-  version = "~> 1.0.0"
+module "terraform-aws-vpc--vpc" {
+  source = "./modules/terraform-aws-vpc"
 
-  name                    = var.vpc_name
-  cidr_block              = var.vpc_cidr_block
-  availability_zones      = var.availability_zones
-  public_subnet_cidrs     = var.public_subnet_cidrs
-  private_subnet_cidrs    = var.private_subnet_cidrs
-  enable_dns_support      = var.enable_dns_support
-  enable_dns_hostnames    = var.enable_dns_hostnames
-  map_public_ip_on_launch = var.map_public_ip_on_launch
-  enable_nat_gateway      = var.enable_nat_gateway
-  single_nat_gateway      = var.single_nat_gateway
-  tags                    = {}
+  name                 = var.vpc_name
+  availability_zones   = var.vpc_availability_zones
+  public_subnet_cidrs  = var.vpc_public_subnet_cidrs
+  private_subnet_cidrs = var.vpc_private_subnet_cidrs
+  cidr_block           = var.vpc_cidr_block
+  enable_nat_gateway   = var.vpc_enable_nat_gateway
+  single_nat_gateway   = var.vpc_single_nat_gateway
+  enable_dns_hostnames = var.vpc_enable_dns_hostnames
+  enable_dns_support   = var.vpc_enable_dns_support
+  map_public_ip_on_launch = var.vpc_map_public_ip_on_launch
+  tags                 = var.vpc_tags
 }
 
-# Lambda Security Group
-module "security-group--lambda-security-group" {
-  source  = "app.terraform.io/TF01/security-group/aws"
-  version = "~> 1.0.0"
+module "terraform-aws-subnet--subnet" {
+  source = "./modules/terraform-aws-subnet"
 
-  name                     = var.lambda_sg_name
-  description              = var.lambda_sg_description
-  vpc_id                   = module.vpc--vpc.vpc_id
-  ingress_rules            = []
-  egress_rules             = []
-  default_egress_allow_all = true
-  revoke_rules_on_delete   = false
-  tags                     = {}
+  name                          = var.subnet_name
+  vpc_id                        = module.terraform-aws-vpc--vpc.vpc_id
+  cidr_block                    = var.subnet_cidr_block
+  availability_zone             = var.subnet_availability_zone
+  map_public_ip_on_launch       = var.subnet_map_public_ip_on_launch
+  assign_ipv6_address_on_creation = var.subnet_assign_ipv6_address_on_creation
+  ipv6_cidr_block               = var.subnet_ipv6_cidr_block
+  create_route_table            = var.subnet_create_route_table
+  route_table_id                = var.subnet_route_table_id
+  default_route_target_id       = var.subnet_default_route_target_id
+  default_route_target_type     = var.subnet_default_route_target_type
+  additional_routes             = var.subnet_additional_routes
+  tags                          = var.subnet_tags
 }
 
-# RDS Security Group
-module "security-group--aurora-postgresql-rds-security-group" {
-  source  = "app.terraform.io/TF01/security-group/aws"
-  version = "~> 1.0.0"
+module "terraform-aws-security-group--lambda-security-group" {
+  source = "./modules/terraform-aws-security-group"
 
-  name        = var.rds_sg_name
-  description = var.rds_sg_description
-  vpc_id      = module.vpc--vpc.vpc_id
-  ingress_rules = [
-    {
-      description      = "Allow inbound from Lambda SG"
-      from_port        = 5432
-      to_port          = 5432
-      protocol         = "tcp"
-      cidr_blocks      = []
-      ipv6_cidr_blocks = []
-      security_groups  = [module.security-group--lambda-security-group.security_group_id]
-      self             = false
-    }
-  ]
-  egress_rules             = []
-  default_egress_allow_all = true
-  revoke_rules_on_delete   = false
-  tags                     = {}
+  name                    = var.security_group_name
+  vpc_id                  = module.terraform-aws-vpc--vpc.vpc_id
+  description             = var.security_group_description
+  ingress_rules           = var.security_group_ingress_rules
+  egress_rules            = var.security_group_egress_rules
+  default_egress_allow_all = var.security_group_default_egress_allow_all
+  revoke_rules_on_delete  = var.security_group_revoke_rules_on_delete
+  tags                    = var.security_group_tags
 }
 
-# Private Subnet 1
-module "subnet--private-subnet" {
-  source  = "app.terraform.io/TF01/subnet/aws"
-  version = "~> 1.0.0"
+module "terraform-aws-iam-role--lambda-execution-iam-role" {
+  source = "./modules/terraform-aws-iam-role"
 
-  name                            = "${var.private_subnet_name}-1"
-  vpc_id                          = module.vpc--vpc.vpc_id
-  cidr_block                      = var.private_subnet_cidr_1
-  availability_zone               = var.private_subnet_az_1
-  map_public_ip_on_launch         = false
-  assign_ipv6_address_on_creation = false
-  ipv6_cidr_block                 = null
-  additional_routes               = []
-  default_route_target_type       = "nat_gateway_id"
-  default_route_target_id         = length(module.vpc--vpc.nat_gateway_ids) > 0 ? module.vpc--vpc.nat_gateway_ids[0] : null
-  create_route_table              = true
-  tags                            = {}
+  name                    = var.iam_role_name
+  assume_role_principals  = var.iam_role_assume_role_principals
+  description             = var.iam_role_description
+  path                    = var.iam_role_path
+  max_session_duration    = var.iam_role_max_session_duration
+  managed_policy_arns     = var.iam_role_managed_policy_arns
+  inline_policies         = var.iam_role_inline_policies
+  permissions_boundary    = var.iam_role_permissions_boundary
+  force_detach_policies   = var.iam_role_force_detach_policies
+  tags                    = var.iam_role_tags
 }
 
-# Private Subnet 2 (for DB subnet group multi-AZ)
-module "subnet--db-subnet-group" {
-  source  = "app.terraform.io/TF01/subnet/aws"
-  version = "~> 1.0.0"
+module "aws-ecr-repository" {
+  source = "./modules/aws-ecr-repository"
 
-  name                            = "${var.private_subnet_name}-2"
-  vpc_id                          = module.vpc--vpc.vpc_id
-  cidr_block                      = var.private_subnet_cidr_2
-  availability_zone               = var.private_subnet_az_2
-  map_public_ip_on_launch         = false
-  assign_ipv6_address_on_creation = false
-  ipv6_cidr_block                 = null
-  additional_routes               = []
-  default_route_target_type       = "nat_gateway_id"
-  default_route_target_id         = length(module.vpc--vpc.nat_gateway_ids) > 0 ? module.vpc--vpc.nat_gateway_ids[0] : null
-  create_route_table              = true
-  tags                            = {}
+  name                     = var.ecr_name
+  image_tag_mutability     = var.ecr_image_tag_mutability
+  scan_on_push             = var.ecr_scan_on_push
+  encryption_type          = var.ecr_encryption_type
+  kms_key_arn              = var.ecr_kms_key_arn
+  force_delete             = var.ecr_force_delete
+  lifecycle_policy         = var.ecr_lifecycle_policy
+  repository_policy        = var.ecr_repository_policy
+  replication_destinations = var.ecr_replication_destinations
+  replication_filters      = var.ecr_replication_filters
+  tags                     = var.ecr_tags
 }
 
-# DB Subnet Group
-resource "aws_db_subnet_group" "opsera_test" {
-  name = var.db_subnet_group_name
-  subnet_ids = [
-    module.subnet--private-subnet.subnet_id,
-    module.subnet--db-subnet-group.subnet_id
-  ]
+module "aws-cloudwatch--cloudwatch-log-group" {
+  source = "./modules/aws-cloudwatch"
 
-  tags = {
-    Name = var.db_subnet_group_name
-  }
+  log_groups    = var.log_groups
+  metric_alarms = var.metric_alarms
+  dashboards    = var.dashboards
+  log_streams   = var.log_streams
+  event_rules   = var.event_rules
+  event_targets = var.event_targets
+  tags          = var.cloudwatch_tags
 }
 
-# S3 Bucket
-module "s3--s3-bucket" {
-  source  = "app.terraform.io/TF01/s3/aws"
-  version = "~> 1.0.0"
-
-  bucket_name             = var.bucket_name
-  versioning_enabled      = var.versioning_enabled
-  sse_algorithm           = var.sse_algorithm
-  block_public_acls       = var.block_public_acls
-  block_public_policy     = var.block_public_policy
-  ignore_public_acls      = var.ignore_public_acls
-  restrict_public_buckets = var.restrict_public_buckets
-  force_destroy           = var.force_destroy
-  lifecycle_rules         = []
-  bucket_policy_json      = null
-  kms_master_key_id       = null
-  tags                    = {}
-}
-
-# CloudWatch Log Group for Lambda
-module "cloudwatch--cloudwatch-log-group-lambda" {
-  source  = "app.terraform.io/TF01/cloudwatch/aws"
-  version = "~> 1.0.1"
-
-  log_groups = {
-    lambda_log_group = {
-      name              = var.lambda_log_group_name
-      retention_in_days = var.lambda_log_retention_days
-      kms_key_id        = null
-      tags              = {}
-    }
-  }
-  event_rules   = {}
-  event_targets = {}
-  log_streams   = {}
-  dashboards    = {}
-  metric_alarms = {}
-  tags          = {}
-}
-
-# Secrets Manager Secret
-module "aws-secrets-manager-secret" {
-  source = "./modules/aws-secrets-manager-secret"
-
-  name                              = var.secret_name
-  description                       = var.secret_description
-  kms_key_id                        = null
-  recovery_window_in_days           = var.recovery_window_in_days
-  force_overwrite_replica_secret    = false
-  replica_regions                   = []
-  secret_string                     = var.secret_string
-  secret_is_json                    = false
-  secret_string_json                = {}
-  secret_binary                     = null
-  version_stages                    = null
-  enable_rotation                   = false
-  rotation_lambda_arn               = null
-  rotation_automatically_after_days = 30
-  secret_policy                     = null
-  block_public_policy               = true
-  tags                              = {}
-}
-
-# Lambda Function
-module "lambda--lambda-function" {
-  source  = "app.terraform.io/TF01/lambda/aws"
-  version = "~> 1.0.0"
+module "aws-lambda-function" {
+  source = "./modules/aws-lambda-function"
 
   function_name                  = var.lambda_function_name
-  runtime                        = var.lambda_runtime
-  handler                        = var.lambda_handler
+  environment                    = var.lambda_environment
+  description                    = var.lambda_description
+  tags                           = var.lambda_tags
   package_type                   = var.lambda_package_type
-  filename                       = var.lambda_filename
-  description                    = ""
+  image_uri                      = var.lambda_image_uri
+  architecture                   = var.lambda_architecture
   memory_size                    = var.lambda_memory_size
   timeout                        = var.lambda_timeout
   reserved_concurrent_executions = var.lambda_reserved_concurrent_executions
-  architectures                  = var.lambda_architectures
+  layers                         = var.lambda_layers
+  publish                        = var.lambda_publish
   environment_variables          = var.lambda_environment_variables
-  log_retention_days             = var.lambda_log_retention_days
+  create_iam_role                = var.lambda_create_iam_role
+  iam_role_name                  = var.lambda_iam_role_name
+  existing_iam_role_arn          = var.lambda_existing_iam_role_arn
   additional_policy_arns         = var.lambda_additional_policy_arns
-  image_uri                      = null
-  source_code_hash               = null
-  tags                           = {}
+  inline_policy_json             = var.lambda_inline_policy_json
+  vpc_subnet_ids                 = module.terraform-aws-vpc--vpc.private_subnet_ids
+  vpc_id                         = module.terraform-aws-vpc--vpc.vpc_id
+  vpc_security_group_ids         = [module.terraform-aws-security-group--lambda-security-group.security_group_id]
+  create_security_group          = false
+  create_cloudwatch_log_group    = var.lambda_create_cloudwatch_log_group
+  log_retention_in_days          = var.lambda_log_retention_in_days
+  log_kms_key_id                 = var.lambda_log_kms_key_id
+  tracing_mode                   = var.lambda_tracing_mode
+  dead_letter_target_arn         = var.lambda_dead_letter_target_arn
+  aliases                        = var.lambda_aliases
+  create_function_url            = var.lambda_create_function_url
+  function_url_authorization_type = var.lambda_function_url_authorization_type
+  lambda_permissions             = var.lambda_permissions
+  event_source_mappings          = var.lambda_event_source_mappings
 }
 
-# RDS Aurora PostgreSQL
-module "rds--aurora-postgresql-rds" {
-  source  = "app.terraform.io/TF01/rds/aws"
-  version = "~> 1.0.0"
+# Cross-account S3 access policy for Lambda Execution IAM Role
+resource "aws_iam_policy" "cross_account_s3_test_crossaccount_opsera_demo_access" {
+  name        = "lambda-function-s3-test-crossaccount-opsera-demo-policy-dev"
+  description = "Read and write access to S3 bucket test-crossaccount-opsera-demo"
 
-  identifier              = var.rds_identifier
-  engine                  = var.rds_engine
-  engine_version          = var.rds_engine_version
-  username                = var.rds_username
-  password                = var.rds_password
-  db_name                 = var.rds_db_name
-  db_subnet_group_name    = aws_db_subnet_group.opsera_test.name
-  vpc_security_group_ids  = [module.security-group--aurora-postgresql-rds-security-group.security_group_id]
-  instance_class          = var.rds_instance_class
-  allocated_storage       = var.rds_allocated_storage
-  max_allocated_storage   = var.rds_max_allocated_storage
-  storage_type            = var.rds_storage_type
-  storage_encrypted       = var.rds_storage_encrypted
-  kms_key_id              = null
-  multi_az                = var.rds_multi_az
-  backup_retention_period = var.rds_backup_retention_period
-  skip_final_snapshot     = var.rds_skip_final_snapshot
-  deletion_protection     = var.rds_deletion_protection
-  tags                    = {}
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket",
+          "s3:GetBucketLocation"
+        ]
+        Resource = [
+          "arn:aws:s3:::${var.s3_bucket_name}",
+          "arn:aws:s3:::${var.s3_bucket_name}/*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "cross_account_s3_test_crossaccount_opsera_demo_access_lambda_execution_role" {
+  role       = module.terraform-aws-iam-role--lambda-execution-iam-role.role_name
+  policy_arn = aws_iam_policy.cross_account_s3_test_crossaccount_opsera_demo_access.arn
+}
+
+resource "aws_iam_role_policy_attachment" "cross_account_s3_test_crossaccount_opsera_demo_access_lambda_function_role" {
+  role       = module.aws-lambda-function.iam_role_name
+  policy_arn = aws_iam_policy.cross_account_s3_test_crossaccount_opsera_demo_access.arn
+}
+
+
+# --- Resource Policies (auto-generated, preserving existing statements) ---
+
+resource "aws_s3_bucket_policy" "existing_s3_bucket_test_crossaccount_opsera_demo_policy" {
+  provider = aws.acct_792373136340
+  bucket = var.existing_s3_bucket_test_crossaccount_opsera_demo_bucket_name
+
+  policy = jsonencode({
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "ExistingLegacyAccess",
+          "Effect": "Allow",
+          "Principal": {
+            "AWS": "arn:aws:iam::792373136340:root"
+          },
+          "Action": [
+            "s3:GetObject",
+            "s3:ListBucket"
+          ],
+          "Resource": [
+            "arn:aws:s3:::test-crossaccount-opsera-demo",
+            "arn:aws:s3:::test-crossaccount-opsera-demo/*"
+          ]
+        },
+        {
+          "Sid": "Allowlambda_functionObjectAccess",
+          "Effect": "Allow",
+          "Principal": {
+            "AWS": "arn:aws:iam::472496548172:role/${module.aws-lambda-function.iam_role_name}"
+          },
+          "Action": [
+            "s3:GetObject",
+            "s3:PutObject",
+            "s3:DeleteObject"
+          ],
+          "Resource": "arn:aws:s3:::${var.existing_s3_bucket_test_crossaccount_opsera_demo_bucket_name}/*"
+        },
+        {
+          "Sid": "Allowlambda_functionListBucket",
+          "Effect": "Allow",
+          "Principal": {
+            "AWS": "arn:aws:iam::472496548172:role/${module.aws-lambda-function.iam_role_name}"
+          },
+          "Action": [
+            "s3:ListBucket"
+          ],
+          "Resource": "arn:aws:s3:::${var.existing_s3_bucket_test_crossaccount_opsera_demo_bucket_name}"
+        }
+      ]
+    })
+  depends_on = [module.aws-lambda-function]
 }
