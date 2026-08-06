@@ -1,5 +1,5 @@
 variable "name" {
-  description = "The name of the ECR repository."
+  description = "Name of the ECR repository."
   type        = string
 
   validation {
@@ -49,19 +49,19 @@ variable "force_delete" {
 }
 
 variable "lifecycle_policy" {
-  description = "A JSON-encoded lifecycle policy document to apply to the repository. Set to null to skip lifecycle policy creation."
+  description = "JSON-encoded ECR lifecycle policy document. If null, no lifecycle policy is created."
   type        = string
   default     = null
 }
 
 variable "repository_policy" {
-  description = "A JSON-encoded repository policy document to apply to the repository. Set to null to skip repository policy creation."
+  description = "JSON-encoded ECR repository policy document. If null, no repository policy is created."
   type        = string
   default     = null
 }
 
 variable "replication_destinations" {
-  description = "A list of replication destination objects, each with 'region' and 'registry_id' attributes."
+  description = "List of replication destinations for the ECR repository. Each object requires 'region' and 'registry_id'."
   type = list(object({
     region      = string
     registry_id = string
@@ -70,7 +70,7 @@ variable "replication_destinations" {
 }
 
 variable "replication_filters" {
-  description = "A list of repository filter objects for replication rules, each with 'filter' and 'filter_type' attributes. filter_type must be PREFIX_MATCH."
+  description = "List of repository filters for replication rules. Each object requires 'filter' (repository name prefix) and 'filter_type' (PREFIX_MATCH)."
   type = list(object({
     filter      = string
     filter_type = string
@@ -79,7 +79,7 @@ variable "replication_filters" {
 
   validation {
     condition     = alltrue([for f in var.replication_filters : contains(["PREFIX_MATCH"], f.filter_type)])
-    error_message = "Each replication filter's filter_type must be 'PREFIX_MATCH'."
+    error_message = "replication_filters filter_type must be 'PREFIX_MATCH'."
   }
 }
 
