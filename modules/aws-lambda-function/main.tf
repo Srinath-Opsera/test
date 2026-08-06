@@ -21,23 +21,23 @@ locals {
 resource "aws_iam_role" "this" {
   count = var.create_iam_role ? 1 : 0
 
-  name        = coalesce(var.iam_role_name, "${local.function_name}-role")
-  description = "IAM role for Lambda function ${local.function_name}"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
-      }
-    ]
-  })
+  name                 = coalesce(var.iam_role_name, "${local.function_name}-role")
+  description          = "IAM role for Lambda function ${local.function_name}"
+  assume_role_policy   = data.aws_iam_policy_document.assume_role.json
+  permissions_boundary = var.iam_role_permissions_boundary
 
   tags = local.tags
+}
+
+data "aws_iam_policy_document" "assume_role" {
+  statement {
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+    actions = ["sts:AssumeRole"]
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "basic_execution" {
@@ -54,12 +54,21 @@ resource "aws_iam_role_policy_attachment" "additional" {
   policy_arn = each.value
 }
 
-resource "aws_iam_role_policy" "inline" {
+resource "aws_iam_policy" "inline" {
   count = var.create_iam_role && var.inline_policy_json != null ? 1 : 0
 
-  name   = "${local.function_name}-inline-policy"
-  role   = aws_iam_role.this[0].id
-  policy = var.inline_policy_json
+  name        = "${local.function_name}-inline-policy"
+  description = "Inline policy for Lambda function ${local.function_name}"
+  policy      = var.inline_policy_json
+
+  tags = local.tags
+}
+
+resource "aws_iam_role_policy_attachment" "inline" {
+  count = var.create_iam_role && var.inline_policy_json != null ? 1 : 0
+
+  role       = aws_iam_role.this[0].name
+  policy_arn = aws_iam_policy.inline[0].arn
 }
 
 # CloudWatch Log Group
@@ -67,8 +76,8 @@ resource "aws_cloudwatch_log_group" "this" {
   count = var.create_cloudwatch_log_group ? 1 : 0
 
   name              = "/aws/lambda/${local.function_name}"
-  retention_in_days = var.log_retention_in_days
-  kms_key_id        = var.log_kms_key_id
+  retention_in_days = var.cloudwatch_logs_retention_days
+  kms_key_id        = var.cloudwatch_logs_kms_key_id
 
   tags = local.tags
 }
@@ -81,31 +90,19 @@ resource "aws_security_group" "this" {
   description = "Security group for Lambda function ${local.function_name}"
   vpc_id      = var.vpc_id
 
-  dynamic "ingress" {
-    for_each = var.security_group_ingress_rules
-    content {
-      description      = ingress.value.description
-      from_port        = ingress.value.from_port
-      to_port          = ingress.value.to_port
-      protocol         = ingress.value.protocol
-      cidr_blocks      = lookup(ingress.value, "cidr_blocks", [])
-      security_groups  = lookup(ingress.value, "security_groups", [])
-    }
-  }
+  tags = merge(local.tags, { "Name" = coalesce(var.security_group_name, "${local.function_name}-sg") })
+}
 
-  dynamic "egress" {
-    for_each = var.security_group_egress_rules
-    content {
-      description      = egress.value.description
-      from_port        = egress.value.from_port
-      to_port          = egress.value.to_port
-      protocol         = egress.value.protocol
-      cidr_blocks      = lookup(egress.value, "cidr_blocks", [])
-      security_groups  = lookup(egress.value, "security_groups", [])
-    }
-  }
+resource "aws_security_group_rule" "egress" {
+  count = var.create_security_group && var.vpc_subnet_ids != null ? 1 : 0
 
-  tags = local.tags
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.this[0].id
+  description       = "Allow all outbound traffic"
 }
 
 # Lambda Function
@@ -113,45 +110,42 @@ resource "aws_lambda_function" "this" {
   function_name = local.function_name
   description   = var.description
   role          = var.create_iam_role ? aws_iam_role.this[0].arn : var.existing_iam_role_arn
+  handler       = var.package_type == "Zip" ? var.handler : null
+  runtime       = var.package_type == "Zip" ? var.runtime : null
+  architectures = [var.architecture]
+  package_type  = var.package_type
+  timeout       = var.timeout
+  memory_size   = var.memory_size
 
-  # Package type: Zip or Image
-  package_type = var.package_type
+  # Zip deployment
+  filename         = var.filename
+  source_code_hash = var.filename != null ? var.source_code_hash : null
 
-  # For Zip package type
-  filename          = var.package_type == "Zip" ? var.filename : null
-  s3_bucket         = var.package_type == "Zip" && var.filename == null ? var.s3_bucket : null
-  s3_key            = var.package_type == "Zip" && var.filename == null ? var.s3_key : null
-  s3_object_version = var.package_type == "Zip" && var.filename == null ? var.s3_object_version : null
-  source_code_hash  = var.source_code_hash
+  # ECR image deployment
+  image_uri = var.image_uri
 
-  # For Image package type
-  image_uri = var.package_type == "Image" ? var.image_uri : null
+  # S3 deployment
+  s3_bucket         = var.s3_bucket
+  s3_key            = var.s3_key
+  s3_object_version = var.s3_object_version
 
-  # Runtime (only for Zip)
-  runtime = var.package_type == "Zip" ? var.runtime : null
-  handler = var.package_type == "Zip" ? var.handler : null
-
-  # Configuration
-  memory_size                    = var.memory_size
-  timeout                        = var.timeout
-  reserved_concurrent_executions = var.reserved_concurrent_executions
   layers                         = var.layers
-  architectures                  = [var.architecture]
+  reserved_concurrent_executions = var.reserved_concurrent_executions
+  publish                        = var.publish
+  kms_key_arn                    = var.kms_key_arn
 
-  publish = var.publish
-
-  dynamic "environment" {
-    for_each = length(var.environment_variables) > 0 ? [1] : []
-    content {
-      variables = var.environment_variables
-    }
+  environment {
+    variables = var.environment_variables
   }
 
   dynamic "vpc_config" {
     for_each = var.vpc_subnet_ids != null ? [1] : []
     content {
-      subnet_ids         = var.vpc_subnet_ids
-      security_group_ids = var.create_security_group ? [aws_security_group.this[0].id] : var.vpc_security_group_ids
+      subnet_ids = var.vpc_subnet_ids
+      security_group_ids = concat(
+        var.create_security_group ? [aws_security_group.this[0].id] : [],
+        var.vpc_security_group_ids
+      )
     }
   }
 
@@ -178,18 +172,11 @@ resource "aws_lambda_function" "this" {
   }
 
   dynamic "image_config" {
-    for_each = var.package_type == "Image" && (var.image_command != null || var.image_entry_point != null || var.image_working_directory != null) ? [1] : []
+    for_each = var.image_uri != null && var.image_config != null ? [var.image_config] : []
     content {
-      command           = var.image_command
-      entry_point       = var.image_entry_point
-      working_directory = var.image_working_directory
-    }
-  }
-
-  dynamic "ephemeral_storage" {
-    for_each = var.ephemeral_storage_size != null ? [1] : []
-    content {
-      size = var.ephemeral_storage_size
+      command           = lookup(image_config.value, "command", null)
+      entry_point       = lookup(image_config.value, "entry_point", null)
+      working_directory = lookup(image_config.value, "working_directory", null)
     }
   }
 
@@ -210,19 +197,12 @@ resource "aws_lambda_function" "this" {
 
 # Lambda Alias
 resource "aws_lambda_alias" "this" {
-  for_each = var.aliases
+  count = var.create_alias ? 1 : 0
 
-  name             = each.key
-  description      = lookup(each.value, "description", null)
+  name             = var.alias_name
+  description      = var.alias_description
   function_name    = aws_lambda_function.this.function_name
-  function_version = lookup(each.value, "function_version", "$LATEST")
-
-  dynamic "routing_config" {
-    for_each = lookup(each.value, "additional_version_weights", null) != null ? [1] : []
-    content {
-      additional_version_weights = each.value.additional_version_weights
-    }
-  }
+  function_version = var.alias_function_version != null ? var.alias_function_version : aws_lambda_function.this.version
 }
 
 # Lambda Function URL
@@ -230,7 +210,7 @@ resource "aws_lambda_function_url" "this" {
   count = var.create_function_url ? 1 : 0
 
   function_name      = aws_lambda_function.this.function_name
-  qualifier          = var.function_url_qualifier
+  qualifier          = var.create_alias ? aws_lambda_alias.this[0].name : null
   authorization_type = var.function_url_authorization_type
 
   dynamic "cors" {
@@ -246,50 +226,47 @@ resource "aws_lambda_function_url" "this" {
   }
 }
 
-# Lambda Permission for Function URL (if NONE auth)
-resource "aws_lambda_permission" "function_url" {
+# Lambda Permission for Function URL (public access)
+resource "aws_lambda_permission" "function_url_public" {
   count = var.create_function_url && var.function_url_authorization_type == "NONE" ? 1 : 0
 
   statement_id           = "FunctionURLAllowPublicAccess"
   action                 = "lambda:InvokeFunctionUrl"
   function_name          = aws_lambda_function.this.function_name
+  qualifier              = var.create_alias ? aws_lambda_alias.this[0].name : null
   principal              = "*"
   function_url_auth_type = "NONE"
 }
 
-# Lambda Permissions
-resource "aws_lambda_permission" "this" {
-  for_each = var.lambda_permissions
+# Additional Lambda Permissions
+resource "aws_lambda_permission" "additional" {
+  for_each = { for p in var.lambda_permissions : p.statement_id => p }
 
-  statement_id       = each.key
+  statement_id       = each.value.statement_id
   action             = lookup(each.value, "action", "lambda:InvokeFunction")
   function_name      = aws_lambda_function.this.function_name
+  qualifier          = var.create_alias ? aws_lambda_alias.this[0].name : null
   principal          = each.value.principal
   source_arn         = lookup(each.value, "source_arn", null)
   source_account     = lookup(each.value, "source_account", null)
-  qualifier          = lookup(each.value, "qualifier", null)
   event_source_token = lookup(each.value, "event_source_token", null)
 }
 
 # Event Source Mappings
 resource "aws_lambda_event_source_mapping" "this" {
-  for_each = var.event_source_mappings
+  for_each = { for m in var.event_source_mappings : m.event_source_arn => m }
 
-  function_name     = aws_lambda_function.this.function_name
-  event_source_arn  = each.value.event_source_arn
-  enabled           = lookup(each.value, "enabled", true)
-  batch_size        = lookup(each.value, "batch_size", null)
-  starting_position = lookup(each.value, "starting_position", null)
-
-  dynamic "filter_criteria" {
-    for_each = lookup(each.value, "filter_patterns", null) != null ? [1] : []
-    content {
-      dynamic "filter" {
-        for_each = each.value.filter_patterns
-        content {
-          pattern = filter.value
-        }
-      }
-    }
-  }
+  event_source_arn                   = each.value.event_source_arn
+  function_name                      = var.create_alias ? aws_lambda_alias.this[0].arn : aws_lambda_function.this.arn
+  enabled                            = lookup(each.value, "enabled", true)
+  batch_size                         = lookup(each.value, "batch_size", null)
+  maximum_batching_window_in_seconds = lookup(each.value, "maximum_batching_window_in_seconds", null)
+  starting_position                  = lookup(each.value, "starting_position", null)
+  starting_position_timestamp        = lookup(each.value, "starting_position_timestamp", null)
+  bisect_batch_on_function_error     = lookup(each.value, "bisect_batch_on_function_error", null)
+  maximum_record_age_in_seconds      = lookup(each.value, "maximum_record_age_in_seconds", null)
+  maximum_retry_attempts             = lookup(each.value, "maximum_retry_attempts", null)
+  parallelization_factor             = lookup(each.value, "parallelization_factor", null)
+  tumbling_window_in_seconds         = lookup(each.value, "tumbling_window_in_seconds", null)
+  function_response_types            = lookup(each.value, "function_response_types", null)
 }
