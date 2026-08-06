@@ -58,24 +58,29 @@ output "ecr_repository_arn" {
   value       = module.aws-ecr-repository.repository_arn
 }
 
-output "cloudwatch_log_group_names" {
+output "ecr_repository_name" {
+  description = "Name of the ECR repository"
+  value       = module.aws-ecr-repository.repository_name
+}
+
+output "log_group_names" {
   description = "Map of log group keys to their names"
   value       = module.aws-cloudwatch--cloudwatch-log-group.log_group_names
 }
 
-output "cloudwatch_log_group_arns" {
+output "log_group_arns" {
   description = "Map of log group keys to their ARNs"
   value       = module.aws-cloudwatch--cloudwatch-log-group.log_group_arns
-}
-
-output "lambda_function_name" {
-  description = "Name of the Lambda function"
-  value       = module.aws-lambda-function.function_name
 }
 
 output "lambda_function_arn" {
   description = "ARN of the Lambda function"
   value       = module.aws-lambda-function.function_arn
+}
+
+output "lambda_function_name" {
+  description = "Name of the Lambda function"
+  value       = module.aws-lambda-function.function_name
 }
 
 output "lambda_function_invoke_arn" {
@@ -99,6 +104,6 @@ output "lambda_cloudwatch_log_group_name" {
 }
 
 output "cross_account_s3_policy_arn" {
-  description = "ARN of the cross-account S3 access policy"
+  description = "ARN of the cross-account S3 IAM policy"
   value       = aws_iam_policy.cross_account_s3_test_crossaccount_opsera_demo_access.arn
 }
