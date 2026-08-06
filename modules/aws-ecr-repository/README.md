@@ -37,8 +37,8 @@ module "ecr" {
       {
         Sid       = "AllowPush"
         Effect    = "Allow"
-        Principal = { AWS = "arn:aws:iam::123456789012:role/my-role" }
-        Action    = ["ecr:GetDownloadUrlForLayer", "ecr:BatchGetImage", "ecr:BatchCheckLayerAvailability", "ecr:PutImage", "ecr:InitiateLayerUpload", "ecr:UploadLayerPart", "ecr:CompleteLayerUpload"]
+        Principal = { AWS = "arn:aws:iam::123456789012:role/ci-role" }
+        Action    = ["ecr:GetDownloadUrlForLayer", "ecr:BatchGetImage", "ecr:PutImage"]
       }
     ]
   })
@@ -61,25 +61,25 @@ module "ecr" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|----------|
-| name | The name of the ECR repository | `string` | — | yes |
-| image_tag_mutability | Tag mutability setting (`MUTABLE` or `IMMUTABLE`) | `string` | `"IMMUTABLE"` | no |
+| name | Name of the ECR repository | `string` | — | yes |
+| image_tag_mutability | Tag mutability: MUTABLE or IMMUTABLE | `string` | `"IMMUTABLE"` | no |
 | scan_on_push | Enable image scanning on push | `bool` | `true` | no |
-| encryption_type | Encryption type (`AES256` or `KMS`) | `string` | `"AES256"` | no |
-| kms_key_arn | ARN of KMS key (required when encryption_type is `KMS`) | `string` | `null` | no |
+| encryption_type | Encryption type: AES256 or KMS | `string` | `"AES256"` | no |
+| kms_key_arn | KMS key ARN (required when encryption_type is KMS) | `string` | `null` | no |
 | force_delete | Delete repository even if it contains images | `bool` | `false` | no |
 | lifecycle_policy | JSON-encoded lifecycle policy document | `string` | `null` | no |
 | repository_policy | JSON-encoded repository policy document | `string` | `null` | no |
-| replication_destinations | List of replication destinations with `region` and `registry_id` | `list(object)` | `[]` | no |
-| replication_filters | List of replication filters with `filter` and `filter_type` | `list(object)` | `[]` | no |
-| tags | Map of tags to assign to all resources | `map(string)` | `{}` | no |
+| replication_destinations | List of replication destinations (region, registry_id) | `list(object)` | `[]` | no |
+| replication_filters | List of replication filters (filter, filter_type) | `list(object)` | `[]` | no |
+| tags | Map of tags to assign to resources | `map(string)` | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| repository_name | The name of the ECR repository |
-| repository_arn | The ARN of the ECR repository |
-| repository_url | The URL of the ECR repository |
-| registry_id | The registry ID where the repository was created |
-| lifecycle_policy_id | The repository name the lifecycle policy is applied to |
-| repository_policy_id | The repository name the repository policy is applied to |
+| repository_name | Name of the ECR repository |
+| repository_arn | ARN of the ECR repository |
+| repository_url | URL used for docker push/pull |
+| registry_id | AWS account ID of the registry |
+| lifecycle_policy_id | ID of the lifecycle policy (if created) |
+| repository_policy_id | ID of the repository policy (if created) |
