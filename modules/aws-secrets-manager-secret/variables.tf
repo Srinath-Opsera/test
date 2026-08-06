@@ -4,7 +4,7 @@ variable "name" {
 
   validation {
     condition     = length(var.name) >= 1 && length(var.name) <= 512
-    error_message = "The secret name must be between 1 and 512 characters."
+    error_message = "Secret name must be between 1 and 512 characters."
   }
 }
 
@@ -27,7 +27,7 @@ variable "recovery_window_in_days" {
 
   validation {
     condition     = var.recovery_window_in_days == 0 || (var.recovery_window_in_days >= 7 && var.recovery_window_in_days <= 30)
-    error_message = "The recovery_window_in_days must be 0 (force delete) or between 7 and 30 days."
+    error_message = "recovery_window_in_days must be 0 (force delete) or between 7 and 30 days."
   }
 }
 
@@ -38,7 +38,7 @@ variable "force_overwrite_replica_secret" {
 }
 
 variable "replica_regions" {
-  description = "List of objects defining replica regions. Each object must have a 'region' key and an optional 'kms_key_id' key."
+  description = "List of replica region configurations. Each object must have a 'region' key and an optional 'kms_key_id' key."
   type = list(object({
     region     = string
     kms_key_id = optional(string)
@@ -47,27 +47,40 @@ variable "replica_regions" {
 }
 
 variable "secret_string" {
-  description = "The secret value to store in the secret. Either secret_string or secret_binary must be set, but not both."
+  description = "A plain text string value for the secret. Mutually exclusive with secret_binary. If secret_is_json is true, use secret_string_json instead."
   type        = string
   default     = null
   sensitive   = true
 }
 
+variable "secret_is_json" {
+  description = "When true, the secret value will be JSON-encoded from the secret_string_json variable instead of using secret_string directly."
+  type        = bool
+  default     = false
+}
+
+variable "secret_string_json" {
+  description = "A map of key/value pairs to JSON-encode as the secret value. Used when secret_is_json is true."
+  type        = map(string)
+  default     = {}
+  sensitive   = true
+}
+
 variable "secret_binary" {
-  description = "The secret value in binary format to store in the secret. Either secret_string or secret_binary must be set, but not both."
+  description = "A base64-encoded binary secret value. Mutually exclusive with secret_string."
   type        = string
   default     = null
   sensitive   = true
 }
 
 variable "version_stages" {
-  description = "List of staging labels attached to this version of the secret. A staging label must be unique to a single version of the secret."
+  description = "List of staging labels attached to the secret version. If not specified, AWS defaults to AWSCURRENT."
   type        = list(string)
   default     = null
 }
 
 variable "enable_rotation" {
-  description = "Whether to enable automatic rotation for the secret."
+  description = "Whether to enable automatic secret rotation via a Lambda function."
   type        = bool
   default     = false
 }
@@ -95,7 +108,7 @@ variable "rotation_automatically_after_days" {
 }
 
 variable "secret_policy" {
-  description = "A valid JSON document representing a resource policy. If not set, no resource policy is attached."
+  description = "A valid JSON document representing a resource policy for the secret. Set to null to skip policy attachment."
   type        = string
   default     = null
 }
@@ -107,7 +120,7 @@ variable "block_public_policy" {
 }
 
 variable "tags" {
-  description = "A map of tags to assign to the secret."
+  description = "A map of tags to assign to all resources created by this module."
   type        = map(string)
   default     = {}
 }
