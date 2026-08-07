@@ -1,13 +1,6 @@
 variable "region" {
   type        = string
   description = "AWS region"
-  default     = "us-east-1"
-}
-
-variable "default_tags" {
-  type        = map(string)
-  description = "Tags applied to all AWS resources via provider default_tags"
-  default     = {}
 }
 
 variable "service_name" {
@@ -25,375 +18,248 @@ variable "environment" {
   description = "Deployment environment"
 }
 
-variable "assume_role_arn_acct_792373136340" {
+variable "vpc_name" {
   type        = string
-  description = "Role ARN for account 792373136340"
+  description = "VPC name"
 }
 
-variable "assume_role_external_id_acct_792373136340" {
+variable "vpc_cidr_block" {
   type        = string
-  description = "External ID for account 792373136340"
-  default     = ""
+  description = "VPC CIDR block"
 }
 
-variable "log_groups" {
-  type = map(object({
-    name              = string
-    retention_in_days = optional(number, 14)
-    kms_key_id        = optional(string, null)
-    tags              = optional(map(string), {})
-  }))
-  description = "CloudWatch log groups"
-  default     = {}
-}
-
-variable "cloudwatch_tags" {
-  type        = map(string)
-  description = "Tags for CloudWatch resources"
-  default     = {}
-}
-
-variable "name" {
-  type        = string
-  description = "IAM role name"
-}
-
-variable "assume_role_principals" {
-  type = list(object({
-    type        = string
-    identifiers = list(string)
-  }))
-  description = "Trust policy principals"
-}
-
-variable "description" {
-  type        = string
-  description = "IAM role description"
-  default     = ""
-}
-
-variable "path" {
-  type        = string
-  description = "IAM role path"
-  default     = "/"
-}
-
-variable "max_session_duration" {
-  type        = number
-  description = "Max session duration in seconds"
-  default     = 3600
-}
-
-variable "managed_policy_arns" {
+variable "availability_zones" {
   type        = list(string)
-  description = "Managed policy ARNs to attach"
-  default     = []
+  description = "Availability zones"
 }
 
-variable "force_detach_policies" {
-  type        = bool
-  description = "Force detach policies on destroy"
-  default     = false
-}
-
-variable "iam_role_tags" {
-  type        = map(string)
-  description = "Tags for IAM role"
-  default     = {}
-}
-
-variable "security_group_name" {
-  type        = string
-  description = "Security group name"
-}
-
-variable "vpc_id" {
-  type        = string
-  description = "VPC ID"
-}
-
-variable "security_group_description" {
-  type        = string
-  description = "Security group description"
-  default     = "Managed by Terraform"
-}
-
-variable "ingress_rules" {
-  type = list(object({
-    description      = optional(string, "")
-    from_port        = number
-    to_port          = number
-    protocol         = string
-    cidr_blocks      = optional(list(string), [])
-    ipv6_cidr_blocks = optional(list(string), [])
-    security_groups  = optional(list(string), [])
-    self             = optional(bool, false)
-  }))
-  description = "Inbound rules"
-  default     = []
-}
-
-variable "egress_rules" {
-  type = list(object({
-    description      = optional(string, "")
-    from_port        = number
-    to_port          = number
-    protocol         = string
-    cidr_blocks      = optional(list(string), [])
-    ipv6_cidr_blocks = optional(list(string), [])
-    security_groups  = optional(list(string), [])
-    self             = optional(bool, false)
-  }))
-  description = "Outbound rules"
-  default     = []
-}
-
-variable "default_egress_allow_all" {
-  type        = bool
-  description = "Default allow-all egress rule"
-  default     = true
-}
-
-variable "revoke_rules_on_delete" {
-  type        = bool
-  description = "Revoke rules on delete"
-  default     = false
-}
-
-variable "security_group_tags" {
-  type        = map(string)
-  description = "Tags for security group"
-  default     = {}
-}
-
-variable "repository_name" {
-  type        = string
-  description = "ECR repository name"
-}
-
-variable "image_tag_mutability" {
-  type        = string
-  description = "ECR image tag mutability"
-  default     = "MUTABLE"
-}
-
-variable "scan_on_push" {
-  type        = bool
-  description = "Scan images on push"
-  default     = true
-}
-
-variable "encryption_type" {
-  type        = string
-  description = "ECR encryption type"
-  default     = "AES256"
-}
-
-variable "ecr_kms_key_arn" {
-  type        = string
-  description = "KMS key ARN for ECR"
-  default     = null
-}
-
-variable "force_delete" {
-  type        = bool
-  description = "Force delete ECR repository"
-  default     = false
-}
-
-variable "lifecycle_policy" {
-  type        = string
-  description = "ECR lifecycle policy JSON"
-  default     = null
-}
-
-variable "repository_policy" {
-  type        = string
-  description = "ECR repository policy JSON"
-  default     = null
-}
-
-variable "replication_destinations" {
-  type = list(object({
-    region      = string
-    registry_id = string
-  }))
-  description = "ECR replication destinations"
-  default     = []
-}
-
-variable "replication_filters" {
-  type = list(object({
-    filter      = string
-    filter_type = string
-  }))
-  description = "ECR replication filters"
-  default     = []
-}
-
-variable "ecr_tags" {
-  type        = map(string)
-  description = "Tags for ECR repository"
-  default     = {}
-}
-
-variable "function_name" {
-  type        = string
-  description = "Lambda function name"
-}
-
-variable "lambda_description" {
-  type        = string
-  description = "Lambda function description"
-  default     = ""
-}
-
-variable "runtime" {
-  type        = string
-  description = "Lambda runtime"
-  default     = null
-}
-
-variable "handler" {
-  type        = string
-  description = "Lambda handler"
-  default     = null
-}
-
-variable "architecture" {
-  type        = string
-  description = "Lambda architecture"
-  default     = "x86_64"
-}
-
-variable "image_uri" {
-  type        = string
-  description = "Lambda container image URI"
-  # Placeholder — replaced by CI/CD pipeline after first image push
-  default     = null
-}
-
-variable "timeout" {
-  type        = number
-  description = "Lambda timeout in seconds"
-  default     = 30
-}
-
-variable "memory_size" {
-  type        = number
-  description = "Lambda memory size in MB"
-  default     = 128
-}
-
-variable "publish" {
-  type        = bool
-  description = "Publish Lambda version"
-  default     = false
-}
-
-variable "environment_variables" {
-  type        = map(string)
-  description = "Lambda environment variables"
-  default     = {}
-}
-
-variable "layer_arns" {
+variable "public_subnet_cidrs" {
   type        = list(string)
-  description = "Lambda layer ARNs"
+  description = "Public subnet CIDR blocks"
+}
+
+variable "private_subnet_cidrs" {
+  type        = list(string)
+  description = "Private subnet CIDR blocks"
+}
+
+variable "enable_nat_gateway" {
+  type        = bool
+  description = "Enable NAT gateway"
+}
+
+variable "single_nat_gateway" {
+  type        = bool
+  description = "Single NAT gateway"
+}
+
+variable "enable_dns_hostnames" {
+  type        = bool
+  description = "Enable DNS hostnames"
+}
+
+variable "enable_dns_support" {
+  type        = bool
+  description = "Enable DNS support"
+}
+
+variable "vpc_map_public_ip_on_launch" {
+  type        = bool
+  description = "Map public IP on launch for VPC public subnets"
+}
+
+variable "public_subnet_name" {
+  type        = string
+  description = "Public subnet name"
+}
+
+variable "public_subnet_cidr_block" {
+  type        = string
+  description = "Public subnet CIDR block"
+}
+
+variable "public_subnet_availability_zone" {
+  type        = string
+  description = "Public subnet availability zone"
+}
+
+variable "public_subnet_map_public_ip_on_launch" {
+  type        = bool
+  description = "Map public IP on launch for public subnet"
+}
+
+variable "public_subnet_assign_ipv6_address_on_creation" {
+  type        = bool
+  description = "Assign IPv6 address on creation for public subnet"
+}
+
+variable "public_subnet_ipv6_cidr_block" {
+  type        = string
+  description = "IPv6 CIDR block for public subnet"
+  default     = null
+}
+
+variable "public_subnet_create_route_table" {
+  type        = bool
+  description = "Create route table for public subnet"
+}
+
+variable "public_subnet_default_route_target_id" {
+  type        = string
+  description = "Default route target ID for public subnet"
+  default     = null
+}
+
+variable "public_subnet_default_route_target_type" {
+  type        = string
+  description = "Default route target type for public subnet"
+}
+
+variable "public_subnet_additional_routes" {
+  type = list(object({
+    cidr_block                = string
+    gateway_id                = optional(string)
+    nat_gateway_id            = optional(string)
+    transit_gateway_id        = optional(string)
+    vpc_peering_connection_id = optional(string)
+    network_interface_id      = optional(string)
+  }))
+  description = "Additional routes for public subnet"
   default     = []
 }
 
-variable "create_iam_role" {
-  type        = bool
-  description = "Create Lambda IAM role"
-  default     = false
+variable "private_subnet_name" {
+  type        = string
+  description = "Private subnet name"
 }
 
-variable "vpc_subnet_ids" {
-  type        = list(string)
-  description = "Lambda VPC subnet IDs"
+variable "private_subnet_cidr_block" {
+  type        = string
+  description = "Private subnet CIDR block"
+}
+
+variable "private_subnet_availability_zone" {
+  type        = string
+  description = "Private subnet availability zone"
+}
+
+variable "private_subnet_map_public_ip_on_launch" {
+  type        = bool
+  description = "Map public IP on launch for private subnet"
+}
+
+variable "private_subnet_assign_ipv6_address_on_creation" {
+  type        = bool
+  description = "Assign IPv6 address on creation for private subnet"
+}
+
+variable "private_subnet_ipv6_cidr_block" {
+  type        = string
+  description = "IPv6 CIDR block for private subnet"
   default     = null
 }
 
-variable "log_retention_in_days" {
-  type        = number
-  description = "CloudWatch log retention in days"
-  default     = 30
-}
-
-variable "lambda_tags" {
-  type        = map(string)
-  description = "Tags for Lambda function"
-  default     = {}
-}
-
-variable "secret_name" {
-  type        = string
-  description = "Secrets Manager secret name"
-}
-
-variable "recovery_window_in_days" {
-  type        = number
-  description = "Secret recovery window in days"
-  default     = 30
-}
-
-variable "force_overwrite_replica_secret" {
+variable "private_subnet_create_route_table" {
   type        = bool
-  description = "Force overwrite replica secret"
-  default     = false
-  sensitive = true
+  description = "Create route table for private subnet"
 }
 
-variable "secret_key_value_pairs" {
-  type        = map(string)
-  description = "Secret key-value pairs"
-  sensitive   = true
-  default     = {}
-}
-
-variable "secret_string" {
+variable "private_subnet_default_route_target_id" {
   type        = string
-  description = "Secret string value (alternative to secret_key_value_pairs)"
-  sensitive   = true
+  description = "Default route target ID for private subnet"
   default     = null
 }
 
-variable "enable_rotation" {
-  type        = bool
-  description = "Enable secret rotation"
-  default     = false
+variable "private_subnet_default_route_target_type" {
+  type        = string
+  description = "Default route target type for private subnet"
 }
 
-variable "rotation_automatically_after_days" {
-  type        = number
-  description = "Days between secret rotations"
-  default     = 30
+variable "private_subnet_additional_routes" {
+  type = list(object({
+    cidr_block                = string
+    gateway_id                = optional(string)
+    nat_gateway_id            = optional(string)
+    transit_gateway_id        = optional(string)
+    vpc_peering_connection_id = optional(string)
+    network_interface_id      = optional(string)
+  }))
+  description = "Additional routes for private subnet"
+  default     = []
+}
+
+variable "bucket_name" {
+  type        = string
+  description = "S3 bucket name"
+}
+
+variable "force_destroy" {
+  type        = bool
+  description = "Force destroy bucket"
+}
+
+variable "versioning_enabled" {
+  type        = bool
+  description = "Enable S3 versioning"
+}
+
+variable "sse_algorithm" {
+  type        = string
+  description = "SSE algorithm"
+}
+
+variable "kms_master_key_id" {
+  type        = string
+  description = "KMS master key ID"
+  default     = null
+}
+
+variable "block_public_acls" {
+  type        = bool
+  description = "Block public ACLs"
 }
 
 variable "block_public_policy" {
   type        = bool
-  description = "Block public secret policy"
-  default     = true
+  description = "Block public policy"
 }
 
-variable "secrets_tags" {
+variable "ignore_public_acls" {
+  type        = bool
+  description = "Ignore public ACLs"
+}
+
+variable "restrict_public_buckets" {
+  type        = bool
+  description = "Restrict public buckets"
+}
+
+variable "lifecycle_rules" {
+  type = list(object({
+    id                                 = string
+    status                             = optional(string, "Enabled")
+    prefix                             = optional(string, "")
+    filter_tags                        = optional(map(string), {})
+    expiration_days                    = optional(number)
+    noncurrent_version_expiration_days = optional(number)
+    transitions = optional(list(object({
+      days          = number
+      storage_class = string
+    })), [])
+  }))
+  description = "S3 lifecycle rules"
+  default     = []
+}
+
+variable "bucket_policy_json" {
+  type        = string
+  description = "S3 bucket policy JSON"
+  default     = null
+}
+
+
+variable "default_tags" {
   type        = map(string)
-  description = "Tags for Secrets Manager secret"
+  description = "Tags applied to all AWS resources via provider default_tags"
   default     = {}
-}
-
-variable "cross_account_s3_bucket_name" {
-  type        = string
-  description = "Cross-account S3 bucket name"
-  default     = "test-crossaccount-opsera-demo"
-}
-
-
-# --- Variables for resource policy injection ---
-
-variable "existing_s3_bucket_cross_account_bucket_name" {
-  description = "Name of the existing S3 bucket for policy attachment"
-  type        = string
-  default     = "test-crossaccount-opsera-demo"
 }
