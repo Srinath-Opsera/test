@@ -1,42 +1,26 @@
 region       = "us-east-1"
-service_name = "myapp"
-team         = "platform"
-environment  = "prod"
+service_name = "test"
+team         = "affinity"
+environment  = "staging"
 
-vpc_name                    = "myapp-prod"
-vpc_cidr_block              = "10.0.0.0/16"
-availability_zones          = ["us-east-1a", "us-east-1b"]
-public_subnet_cidrs         = ["10.0.1.0/24", "10.0.3.0/24"]
-private_subnet_cidrs        = ["10.0.2.0/24", "10.0.4.0/24"]
-enable_nat_gateway          = true
-single_nat_gateway          = true
-enable_dns_hostnames        = true
-enable_dns_support          = true
-vpc_map_public_ip_on_launch = true
+# ECR
+name                     = "affinity-test-staging"
+image_tag_mutability     = "MUTABLE"
+scan_on_push             = true
+encryption_type          = "AES256"
+kms_key_arn              = null
+force_delete             = false
+lifecycle_policy         = null
+repository_policy        = null
+enable_registry_scanning = false
+registry_scan_type       = "BASIC"
+registry_scan_rules      = []
+ecr_tags = {
+  Name = "ecr-affinity-test-staging"
+}
 
-public_subnet_name                            = "public-myapp-prod"
-public_subnet_cidr_block                      = "10.0.1.0/24"
-public_subnet_availability_zone               = "us-east-1a"
-public_subnet_map_public_ip_on_launch         = true
-public_subnet_assign_ipv6_address_on_creation = false
-public_subnet_ipv6_cidr_block                 = null
-public_subnet_create_route_table              = true
-public_subnet_default_route_target_id         = null
-public_subnet_default_route_target_type       = "gateway_id"
-public_subnet_additional_routes               = []
-
-private_subnet_name                            = "private-myapp-prod"
-private_subnet_cidr_block                      = "10.0.2.0/24"
-private_subnet_availability_zone               = "us-east-1a"
-private_subnet_map_public_ip_on_launch         = false
-private_subnet_assign_ipv6_address_on_creation = false
-private_subnet_ipv6_cidr_block                 = null
-private_subnet_create_route_table              = true
-private_subnet_default_route_target_id         = null
-private_subnet_default_route_target_type       = "gateway_id"
-private_subnet_additional_routes               = []
-
-bucket_name             = "my-app-bucket-prod"
+# S3
+bucket_name             = "s3-tfstate-affinity-test-staging"
 force_destroy           = false
 versioning_enabled      = true
 sse_algorithm           = "AES256"
@@ -47,14 +31,25 @@ ignore_public_acls      = true
 restrict_public_buckets = true
 lifecycle_rules         = []
 bucket_policy_json      = null
+s3_tags = {
+  Name = "s3-tfstate-affinity-test-staging"
+}
 
-default_tags = {
-  Grupo = "platform"
-  Entorno = "prod"
-  Owner = "platform"
-  Contacto = "platform"
-  Terraform = "true"
-  ManagedBy = "Opsera"
-  Service = "myapp"
-  NewRelic = "true"
+# Secrets Manager
+secret_name                       = "affinity-test-staging"
+description                       = "Database credentials and app secrets for affinity test staging"
+kms_key_id                        = null
+recovery_window_in_days           = 30
+force_overwrite_replica_secret    = false
+replica_regions                   = []
+secret_string                     = null
+secret_binary                     = null
+version_stages                    = null
+enable_rotation                   = false
+rotation_lambda_arn               = null
+rotation_automatically_after_days = 30
+secret_policy                     = null
+secrets_block_public_policy       = true
+secrets_tags = {
+  Name = "secret-affinity-test-staging"
 }
