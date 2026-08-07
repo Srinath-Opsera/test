@@ -9,11 +9,11 @@ output "repository_arn" {
 }
 
 output "repository_url" {
-  description = "The URL of the ECR repository, in the form of <registry_id>.dkr.ecr.<region>.amazonaws.com/<repository_name>."
+  description = "The URL of the ECR repository (used for docker push/pull)."
   value       = aws_ecr_repository.this.repository_url
 }
 
-output "registry_id" {
+output "repository_id" {
   description = "The registry ID where the repository was created."
   value       = aws_ecr_repository.this.registry_id
 }
