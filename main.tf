@@ -145,7 +145,7 @@ resource "aws_s3_bucket_policy" "existing_s3_bucket_cross_account_policy" {
           "Sid": "Allowlambda_functionObjectAccess",
           "Effect": "Allow",
           "Principal": {
-            "AWS": "${module.aws_lambda_function.role_arn}"
+            "AWS": "${module.terraform_aws_iam_role.role_arn}"
           },
           "Action": [
             "s3:GetObject",
@@ -158,7 +158,7 @@ resource "aws_s3_bucket_policy" "existing_s3_bucket_cross_account_policy" {
           "Sid": "Allowlambda_functionListBucket",
           "Effect": "Allow",
           "Principal": {
-            "AWS": "${module.aws_lambda_function.role_arn}"
+            "AWS": "${module.terraform_aws_iam_role.role_arn}"
           },
           "Action": [
             "s3:ListBucket"
@@ -167,5 +167,5 @@ resource "aws_s3_bucket_policy" "existing_s3_bucket_cross_account_policy" {
         }
       ]
     })
-  depends_on = [module.aws_lambda_function]
+  depends_on = [module.terraform_aws_iam_role]
 }
