@@ -67,7 +67,7 @@ variable "version_stages" {
 }
 
 variable "enable_rotation" {
-  description = "Whether to enable automatic rotation for the secret."
+  description = "Whether to enable automatic secret rotation via a Lambda function."
   type        = bool
   default     = false
 }
@@ -95,7 +95,7 @@ variable "rotation_automatically_after_days" {
 }
 
 variable "secret_policy" {
-  description = "A valid JSON document representing a resource policy. If not provided, no resource policy is attached."
+  description = "A valid JSON document representing a resource-based policy to attach to the secret. Set to null to skip policy creation."
   type        = string
   default     = null
 }
