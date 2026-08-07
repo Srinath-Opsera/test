@@ -12,12 +12,12 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Service     = var.service_name
-      Grupo       = var.team
+      Grupo = var.team
+      Terraform = "true"
+      ManagedBy = "Opsera"
+      Service = var.service_name
       Environment = upper(var.environment)
-      ManagedBy   = "Opsera"
-      NewRelic    = "true"
-      Terraform   = "true"
+      NewRelic = "true"
     }
   }
 }
