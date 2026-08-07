@@ -1,74 +1,79 @@
-output "log_group_names" {
-  description = "Map of log group keys to their names"
-  value       = module.aws_cloudwatch.log_group_names
+output "vpc_id" {
+  value = module.terraform_aws_vpc.vpc_id
 }
 
-output "log_group_arns" {
-  description = "Map of log group keys to their ARNs"
-  value       = module.aws_cloudwatch.log_group_arns
+output "vpc_cidr_block" {
+  value = module.terraform_aws_vpc.vpc_cidr_block
 }
 
-output "role_arn" {
-  description = "ARN of the IAM role"
-  value       = module.terraform_aws_iam_role.role_arn
+output "internet_gateway_id" {
+  value = module.terraform_aws_vpc.internet_gateway_id
 }
 
-output "role_name" {
-  description = "Name of the IAM role"
-  value       = module.terraform_aws_iam_role.role_name
+output "public_subnet_ids" {
+  value = module.terraform_aws_vpc.public_subnet_ids
 }
 
-output "security_group_id" {
-  description = "ID of the security group"
-  value       = module.terraform_aws_security_group.security_group_id
+output "private_subnet_ids" {
+  value = module.terraform_aws_vpc.private_subnet_ids
 }
 
-output "security_group_arn" {
-  description = "ARN of the security group"
-  value       = module.terraform_aws_security_group.security_group_arn
+output "nat_gateway_ids" {
+  value = module.terraform_aws_vpc.nat_gateway_ids
 }
 
-output "repository_name" {
-  description = "ECR repository name"
-  value       = module.aws_ecr_repository.repository_name
+output "public_route_table_id" {
+  value = module.terraform_aws_vpc.public_route_table_id
 }
 
-output "repository_arn" {
-  description = "ECR repository ARN"
-  value       = module.aws_ecr_repository.repository_arn
+output "private_route_table_ids" {
+  value = module.terraform_aws_vpc.private_route_table_ids
 }
 
-output "repository_url" {
-  description = "ECR repository URL"
-  value       = module.aws_ecr_repository.repository_url
+output "public_subnet_id" {
+  value = module.terraform_aws_subnet_public.subnet_id
 }
 
-output "function_arn" {
-  description = "ARN of the Lambda function"
-  value       = module.aws_lambda_function.function_arn
+output "public_subnet_arn" {
+  value = module.terraform_aws_subnet_public.subnet_arn
 }
 
-output "function_name" {
-  description = "Name of the Lambda function"
-  value       = module.aws_lambda_function.function_name
+output "public_subnet_cidr_block" {
+  value = module.terraform_aws_subnet_public.subnet_cidr_block
 }
 
-output "function_invoke_arn" {
-  description = "ARN used to invoke the Lambda function"
-  value       = module.aws_lambda_function.function_invoke_arn
+output "public_subnet_route_table_id" {
+  value = module.terraform_aws_subnet_public.route_table_id
 }
 
-output "secret_arn" {
-  description = "ARN of the Secrets Manager secret"
-  value       = module.aws_secrets_manager_secret.secret_arn
+output "private_subnet_id" {
+  value = module.terraform_aws_subnet_private.subnet_id
 }
 
-output "secret_name" {
-  description = "Name of the Secrets Manager secret"
-  value       = module.aws_secrets_manager_secret.secret_name
+output "private_subnet_arn" {
+  value = module.terraform_aws_subnet_private.subnet_arn
 }
 
-output "cross_account_s3_policy_arn" {
-  description = "ARN of the cross-account S3 IAM policy"
-  value       = aws_iam_policy.cross_account_s3_test_crossaccount_opsera_demo_access.arn
+output "private_subnet_cidr_block" {
+  value = module.terraform_aws_subnet_private.subnet_cidr_block
+}
+
+output "private_subnet_route_table_id" {
+  value = module.terraform_aws_subnet_private.route_table_id
+}
+
+output "bucket_id" {
+  value = module.terraform_aws_s3.bucket_id
+}
+
+output "bucket_arn" {
+  value = module.terraform_aws_s3.bucket_arn
+}
+
+output "bucket_domain_name" {
+  value = module.terraform_aws_s3.bucket_domain_name
+}
+
+output "bucket_regional_domain_name" {
+  value = module.terraform_aws_s3.bucket_regional_domain_name
 }
