@@ -4,7 +4,7 @@ variable "name" {
 
   validation {
     condition     = length(var.name) >= 1 && length(var.name) <= 512
-    error_message = "The secret name must be between 1 and 512 characters."
+    error_message = "Secret name must be between 1 and 512 characters."
   }
 }
 
@@ -27,7 +27,7 @@ variable "recovery_window_in_days" {
 
   validation {
     condition     = var.recovery_window_in_days == 0 || (var.recovery_window_in_days >= 7 && var.recovery_window_in_days <= 30)
-    error_message = "The recovery_window_in_days must be 0 (force delete) or between 7 and 30 days."
+    error_message = "recovery_window_in_days must be 0 (force delete) or between 7 and 30 days."
   }
 }
 
@@ -38,7 +38,7 @@ variable "force_overwrite_replica_secret" {
 }
 
 variable "replica_regions" {
-  description = "List of objects defining replica regions for the secret. Each object must have a 'region' key and an optional 'kms_key_id' key."
+  description = "List of replica region configurations. Each object must have a 'region' key and an optional 'kms_key_id' key."
   type = list(object({
     region     = string
     kms_key_id = optional(string)
@@ -47,14 +47,14 @@ variable "replica_regions" {
 }
 
 variable "secret_string" {
-  description = "The secret value to store as a string. Conflicts with secret_binary. Use a JSON-encoded string for structured secrets."
+  description = "The secret value to store as a plaintext string. Conflicts with secret_binary. Use a JSON-encoded string for structured secrets."
   type        = string
   default     = null
   sensitive   = true
 }
 
 variable "secret_binary" {
-  description = "The secret value to store as binary data (base64-encoded). Conflicts with secret_string."
+  description = "The secret value to store as binary data, base64-encoded. Conflicts with secret_string."
   type        = string
   default     = null
   sensitive   = true
@@ -95,7 +95,7 @@ variable "rotation_automatically_after_days" {
 }
 
 variable "secret_policy" {
-  description = "A valid JSON document representing a resource policy for the secret. If null, no policy is attached."
+  description = "A valid JSON document representing a resource policy. If not provided, no resource policy is attached."
   type        = string
   default     = null
 }
