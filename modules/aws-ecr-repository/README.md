@@ -12,7 +12,7 @@ module "ecr" {
   image_tag_mutability = "IMMUTABLE"
   scan_on_push         = true
   encryption_type      = "KMS"
-  kms_key_arn          = "arn:aws:kms:us-east-1:123456789012:key/abc123"
+  kms_key_arn          = "arn:aws:kms:us-east-1:123456789012:key/mrk-abc123"
   force_delete         = false
 
   lifecycle_policy = jsonencode({
@@ -38,7 +38,7 @@ module "ecr" {
         Sid       = "AllowPush"
         Effect    = "Allow"
         Principal = { AWS = "arn:aws:iam::123456789012:role/ci-role" }
-        Action    = ["ecr:GetDownloadUrlForLayer", "ecr:BatchGetImage", "ecr:PutImage"]
+        Action    = ["ecr:GetDownloadUrlForLayer", "ecr:BatchGetImage", "ecr:BatchCheckLayerAvailability", "ecr:PutImage", "ecr:InitiateLayerUpload", "ecr:UploadLayerPart", "ecr:CompleteLayerUpload"]
       }
     ]
   })
@@ -61,7 +61,7 @@ module "ecr" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|----------|
-| name | Name of the ECR repository | `string` | — | yes |
+| name | The name of the ECR repository | `string` | — | yes |
 | image_tag_mutability | Tag mutability: MUTABLE or IMMUTABLE | `string` | `"IMMUTABLE"` | no |
 | scan_on_push | Enable image scanning on push | `bool` | `true` | no |
 | encryption_type | Encryption type: AES256 or KMS | `string` | `"AES256"` | no |
@@ -77,9 +77,9 @@ module "ecr" {
 
 | Name | Description |
 |------|-------------|
-| repository_name | Name of the ECR repository |
-| repository_arn | ARN of the ECR repository |
-| repository_url | URL used for docker push/pull |
-| registry_id | AWS account ID of the registry |
-| lifecycle_policy_id | ID of the lifecycle policy (if created) |
-| repository_policy_id | ID of the repository policy (if created) |
+| repository_name | The name of the ECR repository |
+| repository_arn | The ARN of the ECR repository |
+| repository_url | The full URL of the ECR repository |
+| registry_id | The registry ID where the repository was created |
+| lifecycle_policy_id | The repository name the lifecycle policy is applied to |
+| repository_policy_id | The repository name the repository policy is applied to |
