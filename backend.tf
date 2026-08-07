@@ -4,7 +4,7 @@ terraform {
     organization = "TF01"
     workspaces {
       # Replaced automatically during deployment with the selected TFC workspace name
-      name = "variable-format-auto-1"
+      name = "affinity-test-dev"
     }
   }
 }
