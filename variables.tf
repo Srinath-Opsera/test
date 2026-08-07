@@ -352,6 +352,13 @@ variable "secret_key_value_pairs" {
   default     = {}
 }
 
+variable "secret_string" {
+  type        = string
+  description = "Secret string value (alternative to secret_key_value_pairs)"
+  sensitive   = true
+  default     = null
+}
+
 variable "enable_rotation" {
   type        = bool
   description = "Enable secret rotation"
