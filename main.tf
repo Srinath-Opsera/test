@@ -1,66 +1,53 @@
-module "terraform_aws_vpc" {
-  source = "./modules/terraform-aws-vpc"
+module "aws_ecr_repository" {
+  source = "./modules/aws-ecr-repository"
 
-  name                    = var.vpc_name
-  cidr_block              = var.vpc_cidr_block
-  availability_zones      = var.availability_zones
-  public_subnet_cidrs     = var.public_subnet_cidrs
-  private_subnet_cidrs    = var.private_subnet_cidrs
-  enable_nat_gateway      = var.enable_nat_gateway
-  single_nat_gateway      = var.single_nat_gateway
-  enable_dns_hostnames    = var.enable_dns_hostnames
-  enable_dns_support      = var.enable_dns_support
-  map_public_ip_on_launch = var.vpc_map_public_ip_on_launch
-  tags                    = {}
-}
-
-module "terraform_aws_subnet_public" {
-  source = "./modules/terraform-aws-subnet"
-
-  name                            = var.public_subnet_name
-  vpc_id                          = module.terraform_aws_vpc.vpc_id
-  cidr_block                      = var.public_subnet_cidr_block
-  availability_zone               = var.public_subnet_availability_zone
-  map_public_ip_on_launch         = var.public_subnet_map_public_ip_on_launch
-  assign_ipv6_address_on_creation = var.public_subnet_assign_ipv6_address_on_creation
-  ipv6_cidr_block                 = var.public_subnet_ipv6_cidr_block
-  create_route_table              = var.public_subnet_create_route_table
-  default_route_target_id         = var.public_subnet_default_route_target_id
-  default_route_target_type       = var.public_subnet_default_route_target_type
-  additional_routes               = var.public_subnet_additional_routes
-  tags                            = {}
-}
-
-module "terraform_aws_subnet_private" {
-  source = "./modules/terraform-aws-subnet"
-
-  name                            = var.private_subnet_name
-  vpc_id                          = module.terraform_aws_vpc.vpc_id
-  cidr_block                      = var.private_subnet_cidr_block
-  availability_zone               = var.private_subnet_availability_zone
-  map_public_ip_on_launch         = var.private_subnet_map_public_ip_on_launch
-  assign_ipv6_address_on_creation = var.private_subnet_assign_ipv6_address_on_creation
-  ipv6_cidr_block                 = var.private_subnet_ipv6_cidr_block
-  create_route_table              = var.private_subnet_create_route_table
-  default_route_target_id         = var.private_subnet_default_route_target_id
-  default_route_target_type       = var.private_subnet_default_route_target_type
-  additional_routes               = var.private_subnet_additional_routes
-  tags                            = {}
+  name                   = var.name
+  image_tag_mutability   = var.image_tag_mutability
+  scan_on_push           = var.scan_on_push
+  encryption_type        = var.encryption_type
+  kms_key_arn            = var.kms_key_arn
+  force_delete           = var.force_delete
+  lifecycle_policy       = var.lifecycle_policy
+  repository_policy      = var.repository_policy
+  enable_registry_scanning = var.enable_registry_scanning
+  registry_scan_type     = var.registry_scan_type
+  registry_scan_rules    = var.registry_scan_rules
+  tags                   = var.ecr_tags
 }
 
 module "terraform_aws_s3" {
   source = "./modules/terraform-aws-s3"
 
-  bucket_name             = var.bucket_name
-  force_destroy           = var.force_destroy
-  versioning_enabled      = var.versioning_enabled
-  sse_algorithm           = var.sse_algorithm
-  kms_master_key_id       = var.kms_master_key_id
-  block_public_acls       = var.block_public_acls
-  block_public_policy     = var.block_public_policy
-  ignore_public_acls      = var.ignore_public_acls
-  restrict_public_buckets = var.restrict_public_buckets
-  lifecycle_rules         = var.lifecycle_rules
-  bucket_policy_json      = var.bucket_policy_json
-  tags                    = {}
+  bucket_name              = var.bucket_name
+  force_destroy            = var.force_destroy
+  versioning_enabled       = var.versioning_enabled
+  sse_algorithm            = var.sse_algorithm
+  kms_master_key_id        = var.kms_master_key_id
+  block_public_acls        = var.block_public_acls
+  block_public_policy      = var.block_public_policy
+  ignore_public_acls       = var.ignore_public_acls
+  restrict_public_buckets  = var.restrict_public_buckets
+  lifecycle_rules          = var.lifecycle_rules
+  bucket_policy_json       = var.bucket_policy_json
+  tags                     = var.s3_tags
+}
+
+module "aws_secrets_manager_secret" {
+  source = "./modules/aws-secrets-manager-secret"
+
+  name                              = var.secret_name
+  description                       = var.description
+  kms_key_id                        = var.kms_key_id
+  recovery_window_in_days           = var.recovery_window_in_days
+  force_overwrite_replica_secret    = var.force_overwrite_replica_secret
+  replica_regions                   = var.replica_regions
+  secret_string                     = var.secret_string
+  secret_binary                     = var.secret_binary
+  version_stages                    = var.version_stages
+  enable_rotation                   = var.enable_rotation
+  rotation_lambda_arn               = var.rotation_lambda_arn
+  rotation_automatically_after_days = var.rotation_automatically_after_days
+  secret_policy                     = var.secret_policy
+  block_public_policy               = var.secrets_block_public_policy
+  tags                              = var.secrets_tags
 }
