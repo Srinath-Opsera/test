@@ -1,10 +1,10 @@
-# terraform-aws-lambda
+# Lambda Function Module
 
-Terraform module to deploy an AWS Lambda function with optional IAM role, CloudWatch log group, VPC networking, alias, function URL, and event source mappings.
+This Terraform module creates an AWS Lambda function with optional supporting resources including IAM roles, CloudWatch log groups, VPC networking, aliases, function URLs, event source mappings, and auto-scaling for provisioned concurrency.
 
 ## Usage
 
-### Zip deployment (minimal)
+### Basic (S3 deployment package)
 
 
 module "lambda" {
@@ -13,13 +13,13 @@ module "lambda" {
   function_name = "my-api-handler"
   environment   = "prod"
   runtime       = "python3.12"
-  handler       = "index.handler"
-  filename      = "${path.module}/dist/function.zip"
-  source_code_hash = filebase64sha256("${path.module}/dist/function.zip")
+  handler       = "app.handler"
+  s3_bucket     = "my-deployment-bucket"
+  s3_key        = "functions/my-api-handler.zip"
 
   environment_variables = {
     LOG_LEVEL = "INFO"
-    TABLE_NAME = "my-table"
+    DB_HOST   = "db.example.com"
   }
 
   tags = {
@@ -29,129 +29,145 @@ module "lambda" {
 }
 
 
-### Container image deployment with VPC
+### VPC-enabled with alias and function URL
 
 
 module "lambda" {
   source = "./modules/lambda"
 
-  function_name = "my-container-fn"
+  function_name = "my-vpc-function"
   environment   = "prod"
-  package_type  = "Image"
-  image_uri     = "123456789012.dkr.ecr.us-east-1.amazonaws.com/my-repo:latest"
-  memory_size   = 512
-  timeout       = 60
+  runtime       = "nodejs20.x"
+  handler       = "index.handler"
+  filename      = "${path.module}/dist/function.zip"
+  source_code_hash = filebase64sha256("${path.module}/dist/function.zip")
 
-  vpc_subnet_ids = ["subnet-aaa", "subnet-bbb"]
-  vpc_id         = "vpc-12345"
+  memory_size = 512
+  timeout     = 60
+
+  vpc_id         = "vpc-0abc123"
+  vpc_subnet_ids = ["subnet-0abc123", "subnet-0def456"]
+
+  create_alias = true
+  alias_name   = "live"
+  publish      = true
+
+  create_function_url            = true
+  function_url_authorization_type = "AWS_IAM"
 
   additional_policy_arns = [
     "arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess"
   ]
 
-  tags = { Team = "backend" }
+  tags = {
+    Team = "backend"
+  }
 }
 
 
-### With alias and function URL
+### Container image deployment
 
 
 module "lambda" {
   source = "./modules/lambda"
 
-  function_name = "my-public-fn"
-  environment   = "prod"
-  publish       = true
+  function_name = "my-container-function"
+  environment   = "staging"
+  image_uri     = "123456789012.dkr.ecr.us-east-1.amazonaws.com/my-function:latest"
 
-  create_alias = true
-  alias_name   = "live"
-
-  create_function_url            = true
-  function_url_authorization_type = "NONE"
+  memory_size = 1024
+  timeout     = 120
+  architecture = "arm64"
 
   tags = {}
 }
 
 
+## Resources Created
+
+| Resource | Condition |
+|---|---|
+| `aws_lambda_function` | Always |
+| `aws_iam_role` | `create_iam_role = true` (default) |
+| `aws_iam_role_policy_attachment` | `create_iam_role = true` |
+| `aws_iam_role_policy` | `create_iam_role = true` and `inline_policy_json` set |
+| `aws_cloudwatch_log_group` | `create_cloudwatch_log_group = true` (default) |
+| `aws_security_group` | `create_security_group = true` and `vpc_subnet_ids` set |
+| `aws_lambda_alias` | `create_alias = true` |
+| `aws_lambda_function_url` | `create_function_url = true` |
+| `aws_lambda_permission` | Per entry in `lambda_permissions` |
+| `aws_lambda_event_source_mapping` | Per entry in `event_source_mappings` |
+| `aws_appautoscaling_target` | `create_alias = true` and `provisioned_concurrency_config` set |
+
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|----------|
-| `function_name` | Unique name for the Lambda function | `string` | — | yes |
-| `environment` | Deployment environment (dev/staging/prod/test/qa) | `string` | — | yes |
-| `description` | Description of the Lambda function | `string` | `""` | no |
-| `tags` | Map of tags to assign to all resources | `map(string)` | `{}` | no |
-| `package_type` | Deployment package type: Zip or Image | `string` | `"Zip"` | no |
-| `runtime` | Lambda runtime identifier | `string` | `"python3.12"` | no |
-| `handler` | Function entrypoint (file.method) | `string` | `"index.handler"` | no |
-| `architecture` | Instruction set: x86_64 or arm64 | `string` | `"x86_64"` | no |
-| `filename` | Path to local zip deployment package | `string` | `null` | no |
-| `source_code_hash` | Base64 SHA256 hash of the zip package | `string` | `null` | no |
-| `s3_bucket` | S3 bucket for deployment package | `string` | `null` | no |
-| `s3_key` | S3 key for deployment package | `string` | `null` | no |
-| `s3_object_version` | S3 object version for deployment package | `string` | `null` | no |
-| `image_uri` | ECR image URI (Image package type) | `string` | `null` | no |
-| `image_config` | Container image config map | `map(any)` | `null` | no |
-| `timeout` | Max execution time in seconds (1-900) | `number` | `30` | no |
-| `memory_size` | Memory in MB (128-10240) | `number` | `128` | no |
-| `reserved_concurrent_executions` | Reserved concurrency (-1 to remove) | `number` | `-1` | no |
-| `publish` | Publish a new version on each deploy | `bool` | `false` | no |
-| `layers` | List of layer ARNs (max 5) | `list(string)` | `[]` | no |
-| `environment_variables` | Environment variables map | `map(string)` | `{}` | no |
-| `create_iam_role` | Create a new IAM execution role | `bool` | `true` | no |
-| `iam_role_name` | Override IAM role name | `string` | `null` | no |
-| `iam_role_permissions_boundary` | Permissions boundary ARN for IAM role | `string` | `null` | no |
-| `existing_iam_role_arn` | Existing IAM role ARN (create_iam_role=false) | `string` | `null` | no |
-| `additional_policy_arns` | Additional IAM policy ARNs to attach | `list(string)` | `[]` | no |
-| `inline_policy_json` | JSON inline policy to attach to role | `string` | `null` | no |
-| `vpc_id` | VPC ID (required with create_security_group) | `string` | `null` | no |
-| `vpc_subnet_ids` | Subnet IDs for VPC config | `list(string)` | `null` | no |
-| `vpc_security_group_ids` | Additional security group IDs | `list(string)` | `[]` | no |
-| `create_security_group` | Create a dedicated security group | `bool` | `true` | no |
-| `security_group_name` | Override security group name | `string` | `null` | no |
-| `create_cloudwatch_log_group` | Create CloudWatch log group | `bool` | `true` | no |
-| `cloudwatch_logs_retention_days` | Log retention in days | `number` | `14` | no |
-| `cloudwatch_logs_kms_key_id` | KMS key ARN for log encryption | `string` | `null` | no |
-| `kms_key_arn` | KMS key ARN for env var encryption | `string` | `null` | no |
-| `dead_letter_target_arn` | SQS/SNS ARN for dead-letter config | `string` | `null` | no |
-| `tracing_mode` | X-Ray tracing mode: PassThrough or Active | `string` | `null` | no |
-| `file_system_arn` | EFS access point ARN | `string` | `null` | no |
-| `file_system_local_mount_path` | EFS local mount path (must start with /mnt/) | `string` | `null` | no |
-| `create_alias` | Create a Lambda alias | `bool` | `false` | no |
-| `alias_name` | Name of the Lambda alias | `string` | `"live"` | no |
-| `alias_description` | Description of the Lambda alias | `string` | `""` | no |
-| `alias_function_version` | Version the alias points to | `string` | `null` | no |
-| `create_function_url` | Create a Lambda function URL | `bool` | `false` | no |
-| `function_url_authorization_type` | Function URL auth type: NONE or AWS_IAM | `string` | `"AWS_IAM"` | no |
-| `function_url_cors` | CORS config map for function URL | `map(any)` | `null` | no |
-| `lambda_permissions` | List of Lambda permission objects | `list(map(string))` | `[]` | no |
-| `event_source_mappings` | List of event source mapping configs | `list(map(any))` | `[]` | no |
-| `snap_start_apply_on` | Snap Start: PublishedVersions or None | `string` | `null` | no |
+| Name | Type | Default | Description |
+|---|---|---|---|
+| `function_name` | `string` | required | Name of the Lambda function |
+| `environment` | `string` | required | Deployment environment (dev/staging/prod/test/qa) |
+| `description` | `string` | `""` | Description of the function |
+| `tags` | `map(string)` | `{}` | Tags to apply to all resources |
+| `runtime` | `string` | `null` | Lambda runtime identifier |
+| `handler` | `string` | `null` | Function entrypoint |
+| `architecture` | `string` | `"x86_64"` | x86_64 or arm64 |
+| `s3_bucket` | `string` | `null` | S3 bucket for deployment package |
+| `s3_key` | `string` | `null` | S3 key for deployment package |
+| `s3_object_version` | `string` | `null` | S3 object version |
+| `filename` | `string` | `null` | Local zip file path |
+| `source_code_hash` | `string` | `null` | Hash of deployment package |
+| `image_uri` | `string` | `null` | ECR image URI for container deployments |
+| `timeout` | `number` | `30` | Function timeout in seconds (1-900) |
+| `memory_size` | `number` | `128` | Memory in MB (128-10240, multiples of 64) |
+| `reserved_concurrent_executions` | `number` | `null` | Reserved concurrency limit |
+| `ephemeral_storage_size` | `number` | `null` | /tmp size in MB (512-10240) |
+| `publish` | `bool` | `false` | Publish a new version on deploy |
+| `snap_start_enabled` | `bool` | `false` | Enable SnapStart (Java only) |
+| `environment_variables` | `map(string)` | `{}` | Environment variables |
+| `layer_arns` | `list(string)` | `[]` | Lambda layer ARNs (max 5) |
+| `create_iam_role` | `bool` | `true` | Create IAM execution role |
+| `iam_role_name` | `string` | `null` | Custom IAM role name |
+| `existing_role_arn` | `string` | `null` | Existing role ARN (when create_iam_role=false) |
+| `additional_policy_arns` | `list(string)` | `[]` | Additional policy ARNs to attach |
+| `inline_policy_json` | `string` | `null` | Inline IAM policy JSON |
+| `vpc_id` | `string` | `null` | VPC ID for VPC deployment |
+| `vpc_subnet_ids` | `list(string)` | `null` | Subnet IDs for VPC deployment |
+| `vpc_security_group_ids` | `list(string)` | `[]` | Existing security group IDs |
+| `create_security_group` | `bool` | `true` | Create a security group for VPC |
+| `security_group_name` | `string` | `null` | Custom security group name |
+| `create_cloudwatch_log_group` | `bool` | `true` | Create CloudWatch log group |
+| `log_retention_in_days` | `number` | `14` | Log retention period |
+| `kms_key_arn` | `string` | `null` | KMS key ARN for encryption |
+| `dead_letter_target_arn` | `string` | `null` | DLQ SQS/SNS ARN |
+| `tracing_mode` | `string` | `null` | X-Ray tracing mode |
+| `file_system_arn` | `string` | `null` | EFS access point ARN |
+| `file_system_local_mount_path` | `string` | `null` | EFS mount path (must start with /mnt/) |
+| `create_alias` | `bool` | `false` | Create a Lambda alias |
+| `alias_name` | `string` | `"live"` | Alias name |
+| `alias_description` | `string` | `""` | Alias description |
+| `alias_function_version` | `string` | `null` | Version the alias points to |
+| `create_function_url` | `bool` | `false` | Create a function URL |
+| `function_url_authorization_type` | `string` | `"AWS_IAM"` | Function URL auth type |
+| `function_url_cors` | `map(any)` | `null` | Function URL CORS config |
+| `lambda_permissions` | `map(map(string))` | `{}` | Lambda resource-based permissions |
+| `event_source_mappings` | `any` | `{}` | Event source mapping configurations |
+| `provisioned_concurrency_config` | `map(number)` | `null` | Auto-scaling for provisioned concurrency |
 
 ## Outputs
 
 | Name | Description |
-|------|-------------|
-| `function_arn` | ARN of the Lambda function |
-| `function_name` | Name of the Lambda function |
+|---|---|
+| `function_arn` | Lambda function ARN |
+| `function_name` | Lambda function name |
 | `function_qualified_arn` | Qualified ARN including version |
 | `function_version` | Latest published version |
-| `function_invoke_arn` | Invoke ARN for API Gateway integration |
+| `function_invoke_arn` | Invoke ARN for API Gateway |
 | `function_last_modified` | Last modified timestamp |
-| `iam_role_arn` | ARN of the IAM execution role |
-| `iam_role_name` | Name of the IAM execution role |
-| `cloudwatch_log_group_name` | CloudWatch log group name |
-| `cloudwatch_log_group_arn` | CloudWatch log group ARN |
-| `security_group_id` | Security group ID (VPC only) |
-| `alias_arn` | ARN of the Lambda alias |
-| `alias_name` | Name of the Lambda alias |
-| `alias_invoke_arn` | Invoke ARN of the Lambda alias |
-| `function_url` | HTTPS endpoint of the function URL |
-| `function_url_id` | Unique ID of the function URL |
-
-## Notes
-
-- When `vpc_subnet_ids` is set, the module automatically attaches `AWSLambdaVPCAccessExecutionRole` instead of `AWSLambdaBasicExecutionRole`.
-- Set `create_iam_role = false` and provide `existing_iam_role_arn` to bring your own role.
-- `publish = true` is required for `create_alias = true` to work correctly with versioned deployments.
-- Function URL with `authorization_type = "NONE"` automatically adds a public resource-based policy.
+| `alias_arn` | Alias ARN (if created) |
+| `alias_invoke_arn` | Alias invoke ARN (if created) |
+| `function_url` | Function URL HTTPS endpoint (if created) |
+| `function_url_id` | Function URL unique ID (if created) |
+| `iam_role_arn` | IAM role ARN (if created) |
+| `iam_role_name` | IAM role name (if created) |
+| `security_group_id` | Security group ID (if created) |
+| `cloudwatch_log_group_name` | Log group name (if created) |
+| `cloudwatch_log_group_arn` | Log group ARN (if created) |
