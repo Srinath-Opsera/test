@@ -4,7 +4,7 @@ variable "name" {
 
   validation {
     condition     = can(regex("^[a-z0-9][a-z0-9._/-]{1,254}$", var.name))
-    error_message = "Repository name must be between 2 and 256 characters, start with a letter or digit, and contain only lowercase letters, digits, hyphens, underscores, periods, and forward slashes."
+    error_message = "Repository name must be between 2 and 255 characters, start with a letter or digit, and contain only lowercase letters, digits, hyphens, underscores, periods, and forward slashes."
   }
 }
 
@@ -60,26 +60,46 @@ variable "repository_policy" {
   default     = null
 }
 
-variable "replication_destinations" {
-  description = "A list of replication destination objects, each with 'region' and 'registry_id' attributes."
-  type = list(object({
-    region      = string
-    registry_id = string
-  }))
-  default = []
+variable "enable_registry_scanning" {
+  description = "Whether to configure registry-level scanning settings."
+  type        = bool
+  default     = false
 }
 
-variable "replication_filters" {
-  description = "A list of repository filter objects for replication rules, each with 'filter' and 'filter_type' attributes. filter_type must be PREFIX_MATCH."
+variable "registry_scan_type" {
+  description = "The scanning type to set for the registry. Valid values are BASIC or ENHANCED."
+  type        = string
+  default     = "BASIC"
+
+  validation {
+    condition     = contains(["BASIC", "ENHANCED"], var.registry_scan_type)
+    error_message = "registry_scan_type must be either 'BASIC' or 'ENHANCED'."
+  }
+}
+
+variable "registry_scan_rules" {
+  description = "A list of scanning rules to apply at the registry level. Each rule requires scan_frequency, filter, and filter_type."
   type = list(object({
-    filter      = string
-    filter_type = string
+    scan_frequency = string
+    filter         = string
+    filter_type    = string
   }))
   default = []
 
   validation {
-    condition     = alltrue([for f in var.replication_filters : contains(["PREFIX_MATCH"], f.filter_type)])
-    error_message = "Each replication filter's filter_type must be 'PREFIX_MATCH'."
+    condition = alltrue([
+      for rule in var.registry_scan_rules :
+      contains(["SCAN_ON_PUSH", "CONTINUOUS_SCAN", "MANUAL"], rule.scan_frequency)
+    ])
+    error_message = "Each registry scan rule's scan_frequency must be one of: SCAN_ON_PUSH, CONTINUOUS_SCAN, MANUAL."
+  }
+
+  validation {
+    condition = alltrue([
+      for rule in var.registry_scan_rules :
+      contains(["WILDCARD"], rule.filter_type)
+    ])
+    error_message = "Each registry scan rule's filter_type must be 'WILDCARD'."
   }
 }
 
