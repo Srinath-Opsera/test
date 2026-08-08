@@ -1,3 +1,27 @@
+output "lb_id" {
+  value = module.terraform_aws_alb.lb_id
+}
+
+output "lb_arn" {
+  value = module.terraform_aws_alb.lb_arn
+}
+
+output "lb_dns_name" {
+  value = module.terraform_aws_alb.lb_dns_name
+}
+
+output "lb_zone_id" {
+  value = module.terraform_aws_alb.lb_zone_id
+}
+
+output "target_group_arn" {
+  value = module.terraform_aws_alb.target_group_arn
+}
+
+output "https_listener_arn" {
+  value = module.terraform_aws_alb.https_listener_arn
+}
+
 output "repository_name" {
   value = module.aws_ecr_repository.repository_name
 }
@@ -10,24 +34,8 @@ output "repository_url" {
   value = module.aws_ecr_repository.repository_url
 }
 
-output "repository_id" {
-  value = module.aws_ecr_repository.repository_id
-}
-
-output "bucket_id" {
-  value = module.terraform_aws_s3.bucket_id
-}
-
-output "bucket_arn" {
-  value = module.terraform_aws_s3.bucket_arn
-}
-
-output "bucket_domain_name" {
-  value = module.terraform_aws_s3.bucket_domain_name
-}
-
-output "bucket_regional_domain_name" {
-  value = module.terraform_aws_s3.bucket_regional_domain_name
+output "registry_id" {
+  value = module.aws_ecr_repository.registry_id
 }
 
 output "secret_id" {
