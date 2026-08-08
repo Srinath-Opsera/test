@@ -1,177 +1,157 @@
 variable "region" {
   type        = string
   description = "AWS region"
+  default     = "us-east-1"
 }
-
-variable "service_name" {
-  type        = string
-  description = "Service name"
-}
-
-variable "team" {
-  type        = string
-  description = "Team name"
-}
-
-variable "environment" {
-  type        = string
-  description = "Deployment environment"
 }
 
 variable "name" {
+  type        = string
+  description = "Name prefix for ALB resources"
+}
+
+variable "vpc_id" {
+  type        = string
+  description = "VPC ID"
+}
+
+variable "subnet_ids" {
+  type        = list(string)
+  description = "Subnet IDs for the ALB"
+}
+
+variable "security_group_ids" {
+  type        = list(string)
+  description = "Security group IDs for the ALB"
+}
+
+variable "certificate_arn" {
+  type        = string
+  description = "ACM certificate ARN for HTTPS listener"
+}
+
+variable "internal" {
+  type        = bool
+  description = "Whether the load balancer is internal"
+  default     = false
+}
+
+variable "enable_deletion_protection" {
+  type        = bool
+  description = "Enable deletion protection on the ALB"
+  default     = false
+}
+
+variable "idle_timeout" {
+  type        = number
+  description = "Idle timeout in seconds"
+  default     = 60
+}
+
+variable "target_port" {
+  type        = number
+  description = "Port on targets for health checks and forwarding"
+  default     = 80
+}
+
+variable "target_protocol" {
+  type        = string
+  description = "Protocol for target group"
+  default     = "HTTP"
+}
+
+variable "health_check_path" {
+  type        = string
+  description = "Health check HTTP path"
+  default     = "/"
+}
+
+variable "ssl_policy" {
+  type        = string
+  description = "SSL policy for HTTPS listener"
+  default     = "ELBSecurityPolicy-2016-08"
+}
+
+variable "additional_certificate_arns" {
+  type        = list(string)
+  description = "Additional ACM certificate ARNs for SNI"
+  default     = []
+}
+
+variable "alb_tags" {
+  type        = map(string)
+  description = "Tags for ALB resources"
+  default     = {}
+}
+
+variable "ecr_name" {
   type        = string
   description = "ECR repository name"
 }
 
 variable "image_tag_mutability" {
   type        = string
-  description = "ECR image tag mutability"
+  description = "Tag mutability setting for the ECR repository"
   default     = "MUTABLE"
 }
 
 variable "scan_on_push" {
   type        = bool
-  description = "ECR scan on push"
+  description = "Scan images on push"
   default     = true
 }
 
 variable "encryption_type" {
   type        = string
-  description = "ECR encryption type"
+  description = "Encryption type for the ECR repository"
   default     = "AES256"
 }
 
 variable "kms_key_arn" {
   type        = string
-  description = "ECR KMS key ARN"
+  description = "KMS key ARN for ECR encryption"
   default     = null
 }
 
 variable "force_delete" {
   type        = bool
-  description = "ECR force delete"
+  description = "Delete ECR repository even if it contains images"
   default     = false
 }
 
 variable "lifecycle_policy" {
   type        = string
-  description = "ECR lifecycle policy JSON"
+  description = "JSON-encoded ECR lifecycle policy"
   default     = null
 }
 
 variable "repository_policy" {
   type        = string
-  description = "ECR repository policy JSON"
+  description = "JSON-encoded ECR repository policy"
   default     = null
 }
 
-variable "enable_registry_scanning" {
-  type        = bool
-  description = "ECR enable registry scanning"
-  default     = false
-}
-
-variable "registry_scan_type" {
-  type        = string
-  description = "ECR registry scan type"
-  default     = "BASIC"
-}
-
-variable "registry_scan_rules" {
+variable "replication_destinations" {
   type = list(object({
-    scan_frequency = string
-    filter         = string
-    filter_type    = string
+    region      = string
+    registry_id = string
   }))
-  description = "ECR registry scan rules"
+  description = "ECR replication destination configurations"
+  default     = []
+}
+
+variable "replication_filters" {
+  type = list(object({
+    filter      = string
+    filter_type = string
+  }))
+  description = "ECR replication filter configurations"
   default     = []
 }
 
 variable "ecr_tags" {
   type        = map(string)
-  description = "ECR repository tags"
-  default     = {}
-}
-
-variable "bucket_name" {
-  type        = string
-  description = "S3 bucket name"
-}
-
-variable "force_destroy" {
-  type        = bool
-  description = "S3 force destroy"
-  default     = false
-}
-
-variable "versioning_enabled" {
-  type        = bool
-  description = "S3 versioning enabled"
-  default     = true
-}
-
-variable "sse_algorithm" {
-  type        = string
-  description = "S3 SSE algorithm"
-  default     = "AES256"
-}
-
-variable "kms_master_key_id" {
-  type        = string
-  description = "S3 KMS master key ID"
-  default     = null
-}
-
-variable "block_public_acls" {
-  type        = bool
-  description = "S3 block public ACLs"
-  default     = true
-}
-
-variable "block_public_policy" {
-  type        = bool
-  description = "S3 block public policy"
-  default     = true
-}
-
-variable "ignore_public_acls" {
-  type        = bool
-  description = "S3 ignore public ACLs"
-  default     = true
-}
-
-variable "restrict_public_buckets" {
-  type        = bool
-  description = "S3 restrict public buckets"
-  default     = true
-}
-
-variable "lifecycle_rules" {
-  type = list(object({
-    id                                 = string
-    status                             = optional(string, "Enabled")
-    prefix                             = optional(string, "")
-    filter_tags                        = optional(map(string), {})
-    expiration_days                    = optional(number)
-    noncurrent_version_expiration_days = optional(number)
-    transitions = optional(list(object({
-      days          = number
-      storage_class = string
-    })), [])
-  }))
-  description = "S3 lifecycle rules"
-  default     = []
-}
-
-variable "bucket_policy_json" {
-  type        = string
-  description = "S3 bucket policy JSON"
-  default     = null
-}
-
-variable "s3_tags" {
-  type        = map(string)
-  description = "S3 bucket tags"
+  description = "Tags for ECR repository"
   default     = {}
 }
 
@@ -182,25 +162,25 @@ variable "secret_name" {
 
 variable "description" {
   type        = string
-  description = "Secrets Manager secret description"
+  description = "Secret description"
   default     = null
 }
 
-variable "kms_key_id" {
+variable "secret_kms_key_id" {
   type        = string
-  description = "Secrets Manager KMS key ID"
+  description = "KMS key ID for secret encryption"
   default     = null
 }
 
 variable "recovery_window_in_days" {
   type        = number
-  description = "Secrets Manager recovery window in days"
+  description = "Recovery window in days before secret deletion"
   default     = 30
 }
 
 variable "force_overwrite_replica_secret" {
   type        = bool
-  description = "Secrets Manager force overwrite replica secret"
+  description = "Overwrite secret with same name in replica region"
   default     = false
   sensitive = true
 }
@@ -210,62 +190,62 @@ variable "replica_regions" {
     region     = string
     kms_key_id = optional(string)
   }))
-  description = "Secrets Manager replica regions"
+  description = "Replica region configurations for the secret"
   default     = []
 }
 
 variable "secret_string" {
   type        = string
-  description = "Secrets Manager secret string"
+  description = "Secret value as string"
   default     = null
   sensitive   = true
 }
 
 variable "secret_binary" {
   type        = string
-  description = "Secrets Manager secret binary"
+  description = "Secret value as binary (base64-encoded)"
   default     = null
   sensitive   = true
 }
 
 variable "version_stages" {
   type        = list(string)
-  description = "Secrets Manager version stages"
+  description = "Staging labels for the secret version"
   default     = null
 }
 
 variable "enable_rotation" {
   type        = bool
-  description = "Secrets Manager enable rotation"
+  description = "Enable automatic secret rotation"
   default     = false
 }
 
 variable "rotation_lambda_arn" {
   type        = string
-  description = "Secrets Manager rotation Lambda ARN"
+  description = "Lambda ARN for secret rotation"
   default     = null
 }
 
 variable "rotation_automatically_after_days" {
   type        = number
-  description = "Secrets Manager rotation interval in days"
+  description = "Days between automatic secret rotations"
   default     = 30
 }
 
 variable "secret_policy" {
   type        = string
-  description = "Secrets Manager secret policy JSON"
+  description = "JSON resource policy for the secret"
   default     = null
 }
 
-variable "secrets_block_public_policy" {
+variable "block_public_policy" {
   type        = bool
-  description = "Secrets Manager block public policy"
+  description = "Block broad resource-based policies on the secret"
   default     = true
 }
 
-variable "secrets_tags" {
+variable "secret_tags" {
   type        = map(string)
-  description = "Secrets Manager secret tags"
+  description = "Tags for Secrets Manager secret"
   default     = {}
 }
