@@ -1,44 +1,39 @@
-region       = "us-east-1"
-service_name = "test"
-team         = "affinity"
-environment  = "staging"
+region = "us-east-1"
 
-# ECR
-name                     = "affinity-test-staging"
-image_tag_mutability     = "MUTABLE"
-scan_on_push             = true
-encryption_type          = "AES256"
-kms_key_arn              = null
-force_delete             = false
-lifecycle_policy         = null
-repository_policy        = null
-enable_registry_scanning = false
-registry_scan_type       = "BASIC"
-registry_scan_rules      = []
+name                       = "alb-affinity-test-staging"
+vpc_id                     = ""
+subnet_ids                 = []
+security_group_ids         = []
+certificate_arn            = ""
+internal                   = false
+enable_deletion_protection = false
+idle_timeout               = 60
+target_port                = 80
+target_protocol            = "HTTP"
+health_check_path          = "/"
+ssl_policy                 = "ELBSecurityPolicy-2016-08"
+additional_certificate_arns = []
+alb_tags = {
+  Name = "alb-affinity-test-staging"
+}
+
+ecr_name             = "ecr-affinity-test"
+image_tag_mutability = "MUTABLE"
+scan_on_push         = true
+encryption_type      = "AES256"
+kms_key_arn          = null
+force_delete         = false
+lifecycle_policy     = null
+repository_policy    = null
+replication_destinations = []
+replication_filters      = []
 ecr_tags = {
-  Name = "ecr-affinity-test-staging"
+  Name = "ecr-affinity-test"
 }
 
-# S3
-bucket_name             = "s3-tfstate-affinity-test-staging"
-force_destroy           = false
-versioning_enabled      = true
-sse_algorithm           = "AES256"
-kms_master_key_id       = null
-block_public_acls       = true
-block_public_policy     = true
-ignore_public_acls      = true
-restrict_public_buckets = true
-lifecycle_rules         = []
-bucket_policy_json      = null
-s3_tags = {
-  Name = "s3-tfstate-affinity-test-staging"
-}
-
-# Secrets Manager
-secret_name                       = "affinity-test-staging"
-description                       = "Database credentials and app secrets for affinity test staging"
-kms_key_id                        = null
+secret_name                       = "secret-affinity-test-staging"
+description                       = null
+secret_kms_key_id                 = null
 recovery_window_in_days           = 30
 force_overwrite_replica_secret    = false
 replica_regions                   = []
@@ -49,7 +44,7 @@ enable_rotation                   = false
 rotation_lambda_arn               = null
 rotation_automatically_after_days = 30
 secret_policy                     = null
-secrets_block_public_policy       = true
-secrets_tags = {
+block_public_policy               = true
+secret_tags = {
   Name = "secret-affinity-test-staging"
 }
