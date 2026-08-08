@@ -48,3 +48,7 @@ block_public_policy               = true
 secret_tags = {
   Name = "secret-affinity-test-staging"
 }
+
+service_name = "affinity-test"
+team         = "platform"
+environment  = "staging"
