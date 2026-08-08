@@ -1,0 +1,29 @@
+name: apat/devplan1
+on:
+#   # The shortest interval you can run scheduled workflows is once every 5 minutes.
+#   period: '180'
+  push:
+jobs:
+  Build-Stage-Default-Job:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4.1.0
+      with:
+        clean: false
+  Security-Stage-security-scan:
+    runs-on: ubuntu-latest
+    needs:
+    - Build-Stage-Default-Job
+    steps:
+    - uses: actions/checkout@v4.1.0
+      with:
+        clean: false
+  Deploy-Stage-deploy-e1:
+    runs-on: ubuntu-latest
+    needs:
+    - Build-Stage-Default-Job
+    - Security-Stage-security-scan
+    steps:
+    - uses: actions/checkout@v4.1.0
+      with:
+        clean: false
