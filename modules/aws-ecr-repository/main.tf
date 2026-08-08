@@ -44,17 +44,25 @@ resource "aws_ecr_repository_policy" "this" {
   policy     = var.repository_policy
 }
 
-resource "aws_ecr_registry_scanning_configuration" "this" {
-  count     = var.enable_registry_scanning ? 1 : 0
-  scan_type = var.registry_scan_type
+resource "aws_ecr_replication_configuration" "this" {
+  count = length(var.replication_destinations) > 0 ? 1 : 0
 
-  dynamic "rule" {
-    for_each = var.registry_scan_rules
-    content {
-      scan_frequency = rule.value.scan_frequency
-      repository_filter {
-        filter      = rule.value.filter
-        filter_type = rule.value.filter_type
+  replication_configuration {
+    rule {
+      dynamic "destination" {
+        for_each = var.replication_destinations
+        content {
+          region      = destination.value.region
+          registry_id = destination.value.registry_id
+        }
+      }
+
+      dynamic "repository_filter" {
+        for_each = var.replication_filters
+        content {
+          filter      = repository_filter.value.filter
+          filter_type = repository_filter.value.filter_type
+        }
       }
     }
   }
