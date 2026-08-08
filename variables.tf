@@ -248,3 +248,18 @@ variable "secret_tags" {
   description = "Tags for Secrets Manager secret"
   default     = {}
 }
+
+variable "service_name" {
+  type        = string
+  description = "The name of the service for tagging purposes."
+}
+
+variable "team" {
+  type        = string
+  description = "The team responsible for the resources, used for tagging."
+}
+
+variable "environment" {
+  type        = string
+  description = "The deployment environment (e.g., staging, production), used for tagging."
+}
