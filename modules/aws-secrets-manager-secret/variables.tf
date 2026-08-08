@@ -47,14 +47,14 @@ variable "replica_regions" {
 }
 
 variable "secret_string" {
-  description = "The secret value to store as a plaintext string. Conflicts with secret_binary. Use a JSON-encoded string for structured secrets."
+  description = "The secret value to store as a string. Conflicts with secret_binary. Use a JSON-encoded string for structured secrets."
   type        = string
   default     = null
   sensitive   = true
 }
 
 variable "secret_binary" {
-  description = "The secret value to store as binary data, base64-encoded. Conflicts with secret_string."
+  description = "The secret value to store as binary data (base64-encoded). Conflicts with secret_string."
   type        = string
   default     = null
   sensitive   = true
@@ -95,7 +95,7 @@ variable "rotation_automatically_after_days" {
 }
 
 variable "secret_policy" {
-  description = "A valid JSON document representing a resource-based policy to attach to the secret. Set to null to skip policy creation."
+  description = "A valid JSON document representing a resource policy for the secret. Set to null to skip policy creation."
   type        = string
   default     = null
 }
