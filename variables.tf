@@ -1,265 +1,257 @@
+variable "default_tags" {
+  type        = map(string)
+  description = "Tags applied to all AWS resources via provider default_tags"
+  default     = {}
+}
+
 variable "region" {
   type        = string
   description = "AWS region"
-  default     = "us-east-1"
+}
+
+variable "log_groups" {
+  type = map(object({
+    name              = string
+    retention_in_days = optional(number, 14)
+    kms_key_id        = optional(string, null)
+    tags              = optional(map(string), {})
+  }))
+  description = "Map of CloudWatch log groups"
+  default     = {}
 }
 
 variable "name" {
   type        = string
-  description = "Name prefix for ALB resources"
+  description = "VPC name"
 }
 
-variable "vpc_id" {
-  type        = string
-  description = "VPC ID"
-}
-
-variable "subnet_ids" {
+variable "availability_zones" {
   type        = list(string)
-  description = "Subnet IDs for the ALB"
+  description = "Availability zones"
 }
 
-variable "security_group_ids" {
+variable "public_subnet_cidrs" {
   type        = list(string)
-  description = "Security group IDs for the ALB"
+  description = "Public subnet CIDRs"
 }
 
-variable "certificate_arn" {
-  type        = string
-  description = "ACM certificate ARN for HTTPS listener"
-}
-
-variable "internal" {
-  type        = bool
-  description = "Whether the load balancer is internal"
-  default     = false
-}
-
-variable "enable_deletion_protection" {
-  type        = bool
-  description = "Enable deletion protection on the ALB"
-  default     = false
-}
-
-variable "idle_timeout" {
-  type        = number
-  description = "Idle timeout in seconds"
-  default     = 60
-}
-
-variable "target_port" {
-  type        = number
-  description = "Port on targets for health checks and forwarding"
-  default     = 80
-}
-
-variable "target_protocol" {
-  type        = string
-  description = "Protocol for target group"
-  default     = "HTTP"
-}
-
-variable "health_check_path" {
-  type        = string
-  description = "Health check HTTP path"
-  default     = "/"
-}
-
-variable "ssl_policy" {
-  type        = string
-  description = "SSL policy for HTTPS listener"
-  default     = "ELBSecurityPolicy-2016-08"
-}
-
-variable "additional_certificate_arns" {
+variable "private_subnet_cidrs" {
   type        = list(string)
-  description = "Additional ACM certificate ARNs for SNI"
-  default     = []
+  description = "Private subnet CIDRs"
 }
 
-variable "alb_tags" {
-  type        = map(string)
-  description = "Tags for ALB resources"
-  default     = {}
-}
-
-variable "ecr_name" {
+variable "cidr_block" {
   type        = string
-  description = "ECR repository name"
+  description = "VPC CIDR block"
 }
 
-variable "image_tag_mutability" {
-  type        = string
-  description = "Tag mutability setting for the ECR repository"
-  default     = "MUTABLE"
-}
-
-variable "scan_on_push" {
+variable "enable_nat_gateway" {
   type        = bool
-  description = "Scan images on push"
-  default     = true
+  description = "Enable NAT gateway"
 }
 
-variable "encryption_type" {
-  type        = string
-  description = "Encryption type for the ECR repository"
-  default     = "AES256"
-}
-
-variable "kms_key_arn" {
-  type        = string
-  description = "KMS key ARN for ECR encryption"
-  default     = null
-}
-
-variable "force_delete" {
+variable "single_nat_gateway" {
   type        = bool
-  description = "Delete ECR repository even if it contains images"
-  default     = false
+  description = "Single NAT gateway"
 }
 
-variable "lifecycle_policy" {
+variable "enable_dns_hostnames" {
+  type        = bool
+  description = "Enable DNS hostnames"
+}
+
+variable "enable_dns_support" {
+  type        = bool
+  description = "Enable DNS support"
+}
+
+variable "map_public_ip_on_launch" {
+  type        = bool
+  description = "Map public IP on launch for VPC public subnets"
+}
+
+variable "security_group_name" {
   type        = string
-  description = "JSON-encoded ECR lifecycle policy"
-  default     = null
-}
-
-variable "repository_policy" {
-  type        = string
-  description = "JSON-encoded ECR repository policy"
-  default     = null
-}
-
-variable "replication_destinations" {
-  type = list(object({
-    region      = string
-    registry_id = string
-  }))
-  description = "ECR replication destination configurations"
-  default     = []
-}
-
-variable "replication_filters" {
-  type = list(object({
-    filter      = string
-    filter_type = string
-  }))
-  description = "ECR replication filter configurations"
-  default     = []
-}
-
-variable "ecr_tags" {
-  type        = map(string)
-  description = "Tags for ECR repository"
-  default     = {}
-}
-
-variable "secret_name" {
-  type        = string
-  description = "Secrets Manager secret name"
+  description = "Security group name"
 }
 
 variable "description" {
   type        = string
-  description = "Secret description"
-  default     = null
+  description = "Security group description"
 }
 
-variable "secret_kms_key_id" {
-  type        = string
-  description = "KMS key ID for secret encryption"
-  default     = null
-}
-
-variable "recovery_window_in_days" {
-  type        = number
-  description = "Recovery window in days before secret deletion"
-  default     = 30
-}
-
-variable "force_overwrite_replica_secret" {
-  type        = bool
-  description = "Overwrite secret with same name in replica region"
-  default     = false
-  sensitive = true
-}
-
-variable "replica_regions" {
+variable "ingress_rules" {
   type = list(object({
-    region     = string
-    kms_key_id = optional(string)
+    description      = optional(string, "")
+    from_port        = number
+    to_port          = number
+    protocol         = string
+    cidr_blocks      = optional(list(string), [])
+    ipv6_cidr_blocks = optional(list(string), [])
+    security_groups  = optional(list(string), [])
+    self             = optional(bool, false)
   }))
-  description = "Replica region configurations for the secret"
+  description = "Security group ingress rules"
   default     = []
 }
 
-variable "secret_string" {
-  type        = string
-  description = "Secret value as string"
-  default     = null
-  sensitive   = true
+variable "egress_rules" {
+  type = list(object({
+    description      = optional(string, "")
+    from_port        = number
+    to_port          = number
+    protocol         = string
+    cidr_blocks      = optional(list(string), [])
+    ipv6_cidr_blocks = optional(list(string), [])
+    security_groups  = optional(list(string), [])
+    self             = optional(bool, false)
+  }))
+  description = "Security group egress rules"
+  default     = []
 }
 
-variable "secret_binary" {
-  type        = string
-  description = "Secret value as binary (base64-encoded)"
-  default     = null
-  sensitive   = true
-}
-
-variable "version_stages" {
-  type        = list(string)
-  description = "Staging labels for the secret version"
-  default     = null
-}
-
-variable "enable_rotation" {
+variable "default_egress_allow_all" {
   type        = bool
-  description = "Enable automatic secret rotation"
-  default     = false
+  description = "Default allow-all egress rule"
 }
 
-variable "rotation_lambda_arn" {
+variable "revoke_rules_on_delete" {
+  type        = bool
+  description = "Revoke rules on delete"
+}
+
+variable "subnet_name" {
   type        = string
-  description = "Lambda ARN for secret rotation"
+  description = "Subnet name"
+}
+
+variable "subnet_cidr_block" {
+  type        = string
+  description = "Subnet CIDR block"
+}
+
+variable "availability_zone" {
+  type        = string
+  description = "Subnet availability zone"
+}
+
+variable "map_public_ip_on_launch_subnet" {
+  type        = bool
+  description = "Map public IP on launch for subnet"
+}
+
+variable "assign_ipv6_address_on_creation" {
+  type        = bool
+  description = "Assign IPv6 address on creation"
+}
+
+variable "ipv6_cidr_block" {
+  type        = string
+  description = "Subnet IPv6 CIDR block"
   default     = null
 }
 
-variable "rotation_automatically_after_days" {
+variable "create_route_table" {
+  type        = bool
+  description = "Create route table"
+}
+
+variable "route_table_id" {
+  type        = string
+  description = "Existing route table ID"
+  default     = null
+}
+
+variable "default_route_target_id" {
+  type        = string
+  description = "Default route target ID"
+  default     = null
+}
+
+variable "default_route_target_type" {
+  type        = string
+  description = "Default route target type"
+}
+
+variable "additional_routes" {
+  type = list(object({
+    cidr_block                = string
+    gateway_id                = optional(string)
+    nat_gateway_id            = optional(string)
+    transit_gateway_id        = optional(string)
+    vpc_peering_connection_id = optional(string)
+    network_interface_id      = optional(string)
+  }))
+  description = "Additional subnet routes"
+  default     = []
+}
+
+variable "function_name" {
+  type        = string
+  description = "Lambda function name"
+}
+
+variable "runtime" {
+  type        = string
+  description = "Lambda runtime"
+}
+
+variable "handler" {
+  type        = string
+  description = "Lambda handler"
+}
+
+variable "lambda_description" {
+  type        = string
+  description = "Lambda function description"
+  default     = ""
+}
+
+variable "filename" {
+  type        = string
+  description = "Lambda deployment package path"
+  default     = null
+}
+
+variable "source_code_hash" {
+  type        = string
+  description = "Lambda source code hash"
+  default     = null
+}
+
+variable "memory_size" {
   type        = number
-  description = "Days between automatic secret rotations"
-  default     = 30
+  description = "Lambda memory in MB"
 }
 
-variable "secret_policy" {
-  type        = string
-  description = "JSON resource policy for the secret"
-  default     = null
+variable "timeout" {
+  type        = number
+  description = "Lambda timeout in seconds"
 }
 
-variable "block_public_policy" {
-  type        = bool
-  description = "Block broad resource-based policies on the secret"
-  default     = true
+variable "architectures" {
+  type        = list(string)
+  description = "Lambda architectures"
 }
 
-variable "secret_tags" {
+variable "environment_variables" {
   type        = map(string)
-  description = "Tags for Secrets Manager secret"
+  description = "Lambda environment variables"
   default     = {}
 }
 
-variable "service_name" {
-  type        = string
-  description = "The name of the service for tagging purposes."
+variable "reserved_concurrent_executions" {
+  type        = number
+  description = "Lambda reserved concurrency"
 }
 
-variable "team" {
-  type        = string
-  description = "The team responsible for the resources, used for tagging."
+variable "log_retention_days" {
+  type        = number
+  description = "Lambda log retention in days"
 }
 
-variable "environment" {
-  type        = string
-  description = "The deployment environment (e.g., staging, production), used for tagging."
+variable "additional_policy_arns" {
+  type        = list(string)
+  description = "Additional IAM policy ARNs for Lambda"
+  default     = []
 }
