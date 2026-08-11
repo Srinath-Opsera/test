@@ -11,6 +11,16 @@ provider "aws" {
   region = var.region
 
   default_tags {
-    tags = var.default_tags
+    tags = {
+      Service = var.service_name
+      Team = var.team
+      Environment = upper(var.environment)
+      Owner = var.team
+      Contact = var.team
+      Platform = "Opsera"
+      ManagedBy = "Opsera"
+      NewRelic = "true"
+      Terraform = "true"
+    }
   }
 }
