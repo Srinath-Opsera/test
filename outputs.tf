@@ -143,13 +143,13 @@ output "lambda_role_arn" {
 }
 
 output "secret_id" {
-  value = module.secrets_manager.secret_id
+  value = module.aws_secrets_manager_secret.secret_id
 }
 
 output "secret_arn" {
-  value = module.secrets_manager.secret_arn
+  value = module.aws_secrets_manager_secret.secret_arn
 }
 
 output "secret_name" {
-  value = module.secrets_manager.secret_name
+  value = module.aws_secrets_manager_secret.secret_name
 }
