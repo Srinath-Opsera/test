@@ -1,54 +1,58 @@
 region = "us-east-1"
 
-name                       = "alb-affinity-test-staging"
-vpc_id                     = ""
-subnet_ids                 = []
-security_group_ids         = []
-certificate_arn            = ""
-internal                   = false
-enable_deletion_protection = false
-idle_timeout               = 60
-target_port                = 80
-target_protocol            = "HTTP"
-health_check_path          = "/"
-ssl_policy                 = "ELBSecurityPolicy-2016-08"
-additional_certificate_arns = []
-alb_tags = {
-  Name = "alb-affinity-test-staging"
+log_groups = {
+  "affinity-test-staging" = {
+    name              = "/aws/lambda/affinity-test-auto"
+    retention_in_days = 30
+  }
 }
 
-ecr_name             = "ecr-affinity-test"
-image_tag_mutability = "MUTABLE"
-scan_on_push         = true
-encryption_type      = "AES256"
-kms_key_arn          = null
-force_delete         = false
-lifecycle_policy     = null
-repository_policy    = null
-replication_destinations = []
-replication_filters      = []
-ecr_tags = {
-  Name = "ecr-affinity-test"
-}
+name                 = "affinity123-test123-auto"
+availability_zones   = ["us-east-1a", "us-east-1b"]
+public_subnet_cidrs  = ["10.0.101.0/24", "10.0.102.0/24"]
+private_subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24"]
+cidr_block           = "10.0.0.0/16"
+enable_nat_gateway   = true
+single_nat_gateway   = true
+enable_dns_hostnames = true
+enable_dns_support   = true
+map_public_ip_on_launch = false
 
-secret_name                       = "secret-affinity-test-staging"
-description                       = null
-secret_kms_key_id                 = null
-recovery_window_in_days           = 30
-force_overwrite_replica_secret    = false
-replica_regions                   = []
-secret_string                     = null
-secret_binary                     = null
-version_stages                    = null
-enable_rotation                   = false
-rotation_lambda_arn               = null
-rotation_automatically_after_days = 30
-secret_policy                     = null
-block_public_policy               = true
-secret_tags = {
-  Name = "secret-affinity-test-staging"
-}
+security_group_name      = "affinity123-test123-auto"
+description              = "Security group for Lambda function"
+ingress_rules            = []
+egress_rules             = []
+default_egress_allow_all = true
+revoke_rules_on_delete   = false
 
-service_name = "affinity-test"
-team         = "platform"
-environment  = "staging"
+subnet_name                   = "affinity123-test123-auto"
+subnet_cidr_block             = "10.0.1.0/24"
+availability_zone             = "us-east-1a"
+map_public_ip_on_launch_subnet = false
+assign_ipv6_address_on_creation = false
+ipv6_cidr_block               = null
+create_route_table            = true
+route_table_id                = null
+default_route_target_id       = null
+default_route_target_type     = "gateway_id"
+additional_routes             = []
+
+function_name                  = "affinity123-test123-auto"
+runtime                        = "provided"
+handler                        = "bootstrap"
+lambda_description             = ""
+filename                       = "affinity123-test123-auto"
+source_code_hash               = null
+memory_size                    = 128
+timeout                        = 30
+architectures                  = ["x86_64"]
+environment_variables          = {}
+reserved_concurrent_executions = -1
+log_retention_days             = 30
+additional_policy_arns         = []
+
+default_tags = {
+  team = "affinity123"
+  service = "test123"
+  environment = "auto"
+}
