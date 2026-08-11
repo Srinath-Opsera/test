@@ -85,10 +85,6 @@ resource "aws_ecs_service" "this" {
     }
   }
 
-  lifecycle {
-    ignore_changes = [desired_count]
-  }
-
   tags = merge(var.tags, { Name = var.service_name })
 }
 
