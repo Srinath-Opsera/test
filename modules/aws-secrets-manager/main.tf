@@ -24,10 +24,10 @@ resource "aws_secretsmanager_secret" "this" {
 }
 
 resource "aws_secretsmanager_secret_version" "this" {
-  count = var.secret_string != null || var.secret_binary != null ? 1 : 0
+  count = var.secret_key_value_pairs != null || var.secret_string != null || var.secret_binary != null ? 1 : 0
 
   secret_id      = aws_secretsmanager_secret.this.id
-  secret_string  = var.secret_string
+  secret_string  = var.secret_binary == null ? (var.secret_key_value_pairs != null ? jsonencode(var.secret_key_value_pairs) : var.secret_string) : null
   secret_binary  = var.secret_binary
   version_stages = var.version_stages
 }
