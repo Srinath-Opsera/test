@@ -9,13 +9,13 @@ variable "name" {
 }
 
 variable "image_tag_mutability" {
-  description = "The tag mutability setting for the repository. Must be one of: MUTABLE or IMMUTABLE."
+  description = "The tag mutability setting for the repository. Must be one of MUTABLE or IMMUTABLE."
   type        = string
   default     = "IMMUTABLE"
 
   validation {
     condition     = contains(["MUTABLE", "IMMUTABLE"], var.image_tag_mutability)
-    error_message = "image_tag_mutability must be either 'MUTABLE' or 'IMMUTABLE'."
+    error_message = "image_tag_mutability must be either MUTABLE or IMMUTABLE."
   }
 }
 
@@ -26,13 +26,13 @@ variable "scan_on_push" {
 }
 
 variable "encryption_type" {
-  description = "The encryption type to use for the repository. Valid values are AES256 or KMS. Set to null to use the default AES256 encryption without an explicit block."
+  description = "The encryption type to use for the repository. Valid values are AES256 or KMS. Set to null to use the default AES256 encryption without an explicit configuration block."
   type        = string
   default     = "AES256"
 
   validation {
     condition     = var.encryption_type == null || contains(["AES256", "KMS"], var.encryption_type)
-    error_message = "encryption_type must be 'AES256', 'KMS', or null."
+    error_message = "encryption_type must be AES256, KMS, or null."
   }
 }
 
@@ -49,13 +49,13 @@ variable "force_delete" {
 }
 
 variable "lifecycle_policy" {
-  description = "A JSON-encoded ECR lifecycle policy document. If null, no lifecycle policy is created."
+  description = "A JSON-encoded ECR lifecycle policy document. Set to null to skip creating a lifecycle policy."
   type        = string
   default     = null
 }
 
 variable "repository_policy" {
-  description = "A JSON-encoded ECR repository policy document. If null, no repository policy is created."
+  description = "A JSON-encoded ECR repository policy document. Set to null to skip creating a repository policy."
   type        = string
   default     = null
 }
@@ -79,12 +79,12 @@ variable "replication_filters" {
 
   validation {
     condition     = alltrue([for f in var.replication_filters : contains(["PREFIX_MATCH"], f.filter_type)])
-    error_message = "Each replication filter's filter_type must be 'PREFIX_MATCH'."
+    error_message = "Each replication filter's filter_type must be PREFIX_MATCH."
   }
 }
 
 variable "tags" {
-  description = "A map of tags to assign to all resources."
+  description = "A map of tags to assign to the ECR repository."
   type        = map(string)
   default     = {}
 }
