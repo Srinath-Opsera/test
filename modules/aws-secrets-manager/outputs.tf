@@ -1,5 +1,5 @@
 output "secret_id" {
-  description = "The ID of the secret."
+  description = "The ID of the secret (same as the ARN)."
   value       = aws_secretsmanager_secret.this.id
 }
 
@@ -27,6 +27,6 @@ output "replica_arns" {
   description = "A map of replica region to replica secret ARN."
   value = {
     for r in aws_secretsmanager_secret.this.replica :
-    r.region => r.last_accessed_date
+    r.region => r.arn
   }
 }
