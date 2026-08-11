@@ -9,7 +9,7 @@ output "repository_arn" {
 }
 
 output "repository_url" {
-  description = "The URL of the ECR repository, in the form of aws_account_id.dkr.ecr.region.amazonaws.com/repository_name."
+  description = "The URL of the ECR repository, in the form aws_account_id.dkr.ecr.region.amazonaws.com/repositoryName."
   value       = aws_ecr_repository.this.repository_url
 }
 
