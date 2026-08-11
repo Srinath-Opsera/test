@@ -236,7 +236,7 @@ module "lambda_function" {
   tags                           = {}
 }
 
-module "secrets_manager" {
+module "aws_secrets_manager_secret" {
   source = "./modules/aws-secrets-manager"
 
   name                             = var.secrets_manager_name
