@@ -1,54 +1,72 @@
-module "terraform_aws_alb" {
-  source = "./modules/terraform-aws-alb"
+module "aws_cloudwatch" {
+  source = "./modules/aws-cloudwatch"
 
-  name                      = var.name
-  vpc_id                    = var.vpc_id
-  subnet_ids                = var.subnet_ids
-  security_group_ids        = var.security_group_ids
-  certificate_arn           = var.certificate_arn
-  internal                  = var.internal
-  enable_deletion_protection = var.enable_deletion_protection
-  idle_timeout              = var.idle_timeout
-  target_port               = var.target_port
-  target_protocol           = var.target_protocol
-  health_check_path         = var.health_check_path
-  ssl_policy                = var.ssl_policy
-  additional_certificate_arns = var.additional_certificate_arns
-  tags                      = var.alb_tags
+  log_groups = var.log_groups
+  tags       = {}
 }
 
-module "aws_ecr_repository" {
-  source = "./modules/aws-ecr-repository"
+module "terraform_aws_vpc" {
+  source = "./modules/terraform-aws-vpc"
 
-  name                   = var.ecr_name
-  image_tag_mutability   = var.image_tag_mutability
-  scan_on_push           = var.scan_on_push
-  encryption_type        = var.encryption_type
-  kms_key_arn            = var.kms_key_arn
-  force_delete           = var.force_delete
-  lifecycle_policy       = var.lifecycle_policy
-  repository_policy      = var.repository_policy
-  replication_destinations = var.replication_destinations
-  replication_filters    = var.replication_filters
-  tags                   = var.ecr_tags
+  name                 = var.name
+  availability_zones   = var.availability_zones
+  public_subnet_cidrs  = var.public_subnet_cidrs
+  private_subnet_cidrs = var.private_subnet_cidrs
+  cidr_block           = var.cidr_block
+  enable_nat_gateway   = var.enable_nat_gateway
+  single_nat_gateway   = var.single_nat_gateway
+  enable_dns_hostnames = var.enable_dns_hostnames
+  enable_dns_support   = var.enable_dns_support
+  map_public_ip_on_launch = var.map_public_ip_on_launch
+  tags                 = {}
 }
 
-module "aws_secrets_manager_secret" {
-  source = "./modules/aws-secrets-manager-secret"
+module "terraform_aws_security_group" {
+  source = "./modules/terraform-aws-security-group"
 
-  name                            = var.secret_name
-  description                     = var.description
-  kms_key_id                      = var.secret_kms_key_id
-  recovery_window_in_days         = var.recovery_window_in_days
-  force_overwrite_replica_secret  = var.force_overwrite_replica_secret
-  replica_regions                 = var.replica_regions
-  secret_string                   = var.secret_string
-  secret_binary                   = var.secret_binary
-  version_stages                  = var.version_stages
-  enable_rotation                 = var.enable_rotation
-  rotation_lambda_arn             = var.rotation_lambda_arn
-  rotation_automatically_after_days = var.rotation_automatically_after_days
-  secret_policy                   = var.secret_policy
-  block_public_policy             = var.block_public_policy
-  tags                            = var.secret_tags
+  name                    = var.security_group_name
+  vpc_id                  = module.terraform_aws_vpc.vpc_id
+  description             = var.description
+  ingress_rules           = var.ingress_rules
+  egress_rules            = var.egress_rules
+  default_egress_allow_all = var.default_egress_allow_all
+  revoke_rules_on_delete  = var.revoke_rules_on_delete
+  tags                    = {}
+}
+
+module "terraform_aws_subnet" {
+  source = "./modules/terraform-aws-subnet"
+
+  name                          = var.subnet_name
+  vpc_id                        = module.terraform_aws_vpc.vpc_id
+  cidr_block                    = var.subnet_cidr_block
+  availability_zone             = var.availability_zone
+  map_public_ip_on_launch       = var.map_public_ip_on_launch_subnet
+  assign_ipv6_address_on_creation = var.assign_ipv6_address_on_creation
+  ipv6_cidr_block               = var.ipv6_cidr_block
+  create_route_table            = var.create_route_table
+  route_table_id                = var.route_table_id
+  default_route_target_id       = var.default_route_target_id
+  default_route_target_type     = var.default_route_target_type
+  additional_routes             = var.additional_routes
+  tags                          = {}
+}
+
+module "terraform_aws_lambda" {
+  source = "./modules/terraform-aws-lambda"
+
+  function_name                  = var.function_name
+  runtime                        = var.runtime
+  handler                        = var.handler
+  description                    = var.lambda_description
+  filename                       = var.filename
+  source_code_hash               = var.source_code_hash
+  memory_size                    = var.memory_size
+  timeout                        = var.timeout
+  architectures                  = var.architectures
+  environment_variables          = var.environment_variables
+  reserved_concurrent_executions = var.reserved_concurrent_executions
+  log_retention_days             = var.log_retention_days
+  additional_policy_arns         = var.additional_policy_arns
+  tags                           = {}
 }
