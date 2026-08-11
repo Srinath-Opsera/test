@@ -3,6 +3,21 @@ variable "region" {
   description = "AWS region"
 }
 
+variable "service_name" {
+  type        = string
+  description = "Service name used for default resource tagging"
+}
+
+variable "team" {
+  type        = string
+  description = "Team name used for default resource tagging"
+}
+
+variable "environment" {
+  type        = string
+  description = "Deployment environment (e.g. staging, production) used for default resource tagging"
+}
+
 # VPC
 variable "vpc_name" {
   type        = string
