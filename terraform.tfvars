@@ -1,5 +1,9 @@
 region = "us-east-1"
 
+service_name = "affinity-test"
+team         = "platform"
+environment  = "staging"
+
 # VPC
 vpc_name                 = "affinity-test-staging"
 availability_zones       = ["us-east-1a", "us-east-1b"]
