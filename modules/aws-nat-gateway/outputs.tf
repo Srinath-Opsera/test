@@ -1,29 +1,39 @@
-output "nat_gateway_ids" {
-  description = "List of NAT Gateway IDs."
-  value       = aws_nat_gateway.this[*].id
+output "nat_gateway_id" {
+  description = "The ID of the NAT Gateway."
+  value       = aws_nat_gateway.this.id
 }
 
-output "nat_gateway_public_ips" {
-  description = "List of public IP addresses associated with the NAT Gateways. Empty when connectivity_type is 'private'."
-  value       = aws_nat_gateway.this[*].public_ip
+output "nat_gateway_public_ip" {
+  description = "The public IP address of the NAT Gateway. Only set when connectivity_type is 'public'."
+  value       = aws_nat_gateway.this.public_ip
 }
 
-output "nat_gateway_private_ips" {
-  description = "List of private IP addresses associated with the NAT Gateways."
-  value       = aws_nat_gateway.this[*].private_ip
+output "nat_gateway_private_ip" {
+  description = "The private IP address of the NAT Gateway."
+  value       = aws_nat_gateway.this.private_ip
 }
 
-output "eip_ids" {
-  description = "List of Elastic IP IDs created by this module. Empty when create_eip is false or connectivity_type is 'private'."
-  value       = aws_eip.this[*].id
+output "nat_gateway_subnet_id" {
+  description = "The subnet ID in which the NAT Gateway is placed."
+  value       = aws_nat_gateway.this.subnet_id
 }
 
-output "eip_public_ips" {
-  description = "List of Elastic IP public IP addresses created by this module. Empty when create_eip is false or connectivity_type is 'private'."
-  value       = aws_eip.this[*].public_ip
+output "nat_gateway_allocation_id" {
+  description = "The allocation ID of the Elastic IP address associated with the NAT Gateway."
+  value       = aws_nat_gateway.this.allocation_id
 }
 
-output "nat_gateway_subnet_ids" {
-  description = "List of subnet IDs in which the NAT Gateways were created."
-  value       = aws_nat_gateway.this[*].subnet_id
+output "eip_id" {
+  description = "The ID of the Elastic IP address created for the NAT Gateway. Null if create_eip is false."
+  value       = var.create_eip ? aws_eip.this[0].id : null
+}
+
+output "eip_public_ip" {
+  description = "The public IP address of the Elastic IP created for the NAT Gateway. Null if create_eip is false."
+  value       = var.create_eip ? aws_eip.this[0].public_ip : null
+}
+
+output "eip_allocation_id" {
+  description = "The allocation ID of the Elastic IP created for the NAT Gateway. Null if create_eip is false."
+  value       = var.create_eip ? aws_eip.this[0].id : null
 }
