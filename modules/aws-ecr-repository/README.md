@@ -1,6 +1,6 @@
 # ECR Repository Module
 
-This Terraform module creates an AWS Elastic Container Registry (ECR) repository with optional lifecycle policies, repository policies, image scanning, encryption, and cross-region replication.
+This module creates an AWS Elastic Container Registry (ECR) repository with optional lifecycle policies, repository policies, image scanning, encryption, and cross-region replication.
 
 ## Usage
 
@@ -64,14 +64,14 @@ module "ecr" {
 | name | The name of the ECR repository | `string` | — | yes |
 | image_tag_mutability | Tag mutability: MUTABLE or IMMUTABLE | `string` | `"IMMUTABLE"` | no |
 | scan_on_push | Enable image scanning on push | `bool` | `true` | no |
-| encryption_type | Encryption type: AES256 or KMS | `string` | `"AES256"` | no |
+| encryption_type | Encryption type: AES256, KMS, or null | `string` | `"AES256"` | no |
 | kms_key_arn | KMS key ARN (required when encryption_type is KMS) | `string` | `null` | no |
 | force_delete | Delete repository even if it contains images | `bool` | `false` | no |
 | lifecycle_policy | JSON-encoded lifecycle policy document | `string` | `null` | no |
 | repository_policy | JSON-encoded repository policy document | `string` | `null` | no |
 | replication_destinations | List of replication destinations (region, registry_id) | `list(object)` | `[]` | no |
 | replication_filters | List of replication filters (filter, filter_type) | `list(object)` | `[]` | no |
-| tags | Map of tags to assign to resources | `map(string)` | `{}` | no |
+| tags | Map of tags to assign to the repository | `map(string)` | `{}` | no |
 
 ## Outputs
 
