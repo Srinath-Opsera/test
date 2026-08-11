@@ -1,59 +1,71 @@
-output "lb_id" {
-  value = module.terraform_aws_alb.lb_id
+output "log_group_names" {
+  value = module.aws_cloudwatch.log_group_names
 }
 
-output "lb_arn" {
-  value = module.terraform_aws_alb.lb_arn
+output "log_group_arns" {
+  value = module.aws_cloudwatch.log_group_arns
 }
 
-output "lb_dns_name" {
-  value = module.terraform_aws_alb.lb_dns_name
+output "vpc_id" {
+  value = module.terraform_aws_vpc.vpc_id
 }
 
-output "lb_zone_id" {
-  value = module.terraform_aws_alb.lb_zone_id
+output "vpc_cidr_block" {
+  value = module.terraform_aws_vpc.vpc_cidr_block
 }
 
-output "target_group_arn" {
-  value = module.terraform_aws_alb.target_group_arn
+output "internet_gateway_id" {
+  value = module.terraform_aws_vpc.internet_gateway_id
 }
 
-output "https_listener_arn" {
-  value = module.terraform_aws_alb.https_listener_arn
+output "public_subnet_ids" {
+  value = module.terraform_aws_vpc.public_subnet_ids
 }
 
-output "repository_name" {
-  value = module.aws_ecr_repository.repository_name
+output "private_subnet_ids" {
+  value = module.terraform_aws_vpc.private_subnet_ids
 }
 
-output "repository_arn" {
-  value = module.aws_ecr_repository.repository_arn
+output "nat_gateway_ids" {
+  value = module.terraform_aws_vpc.nat_gateway_ids
 }
 
-output "repository_url" {
-  value = module.aws_ecr_repository.repository_url
+output "security_group_id" {
+  value = module.terraform_aws_security_group.security_group_id
 }
 
-output "registry_id" {
-  value = module.aws_ecr_repository.registry_id
+output "security_group_arn" {
+  value = module.terraform_aws_security_group.security_group_arn
 }
 
-output "secret_id" {
-  value = module.aws_secrets_manager_secret.secret_id
+output "subnet_id" {
+  value = module.terraform_aws_subnet.subnet_id
 }
 
-output "secret_arn" {
-  value = module.aws_secrets_manager_secret.secret_arn
+output "subnet_arn" {
+  value = module.terraform_aws_subnet.subnet_arn
 }
 
-output "secret_name" {
-  value = module.aws_secrets_manager_secret.secret_name
+output "subnet_cidr_block" {
+  value = module.terraform_aws_subnet.subnet_cidr_block
 }
 
-output "secret_version_id" {
-  value = module.aws_secrets_manager_secret.secret_version_id
+output "function_name" {
+  value = module.terraform_aws_lambda.function_name
 }
 
-output "rotation_enabled" {
-  value = module.aws_secrets_manager_secret.rotation_enabled
+output "function_arn" {
+  value = module.terraform_aws_lambda.function_arn
+}
+
+output "function_invoke_arn" {
+  value = module.terraform_aws_lambda.function_invoke_arn
+}
+
+output "role_arn" {
+  value = module.terraform_aws_lambda.role_arn
+}
+
+output "log_group_name" {
+  value = module.terraform_aws_lambda.log_group_name
 }
