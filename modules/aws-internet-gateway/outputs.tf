@@ -17,3 +17,8 @@ output "name" {
   description = "The name assigned to the Internet Gateway."
   value       = var.name
 }
+
+output "tags_all" {
+  description = "A map of all tags assigned to the Internet Gateway, including provider-level default tags."
+  value       = aws_internet_gateway.this.tags_all
+}
