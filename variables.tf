@@ -4,187 +4,67 @@ variable "region" {
   default     = "us-east-1"
 }
 
-variable "terraform_aws_vpc__virtual_private_cloud_vpc__name" {
+variable "name" {
   type        = string
   description = "VPC name"
 }
 
-variable "terraform_aws_vpc__virtual_private_cloud_vpc__availability_zones" {
+variable "availability_zones" {
   type        = list(string)
   description = "Availability zones"
 }
 
-variable "terraform_aws_vpc__virtual_private_cloud_vpc__public_subnet_cidrs" {
+variable "public_subnet_cidrs" {
   type        = list(string)
   description = "Public subnet CIDRs"
 }
 
-variable "terraform_aws_vpc__virtual_private_cloud_vpc__private_subnet_cidrs" {
+variable "private_subnet_cidrs" {
   type        = list(string)
   description = "Private subnet CIDRs"
 }
 
-variable "terraform_aws_vpc__virtual_private_cloud_vpc__cidr_block" {
+variable "cidr_block" {
   type        = string
   description = "VPC CIDR block"
 }
 
-variable "terraform_aws_vpc__virtual_private_cloud_vpc__enable_nat_gateway" {
+variable "enable_nat_gateway" {
   type        = bool
   description = "Enable NAT gateway"
 }
 
-variable "terraform_aws_vpc__virtual_private_cloud_vpc__single_nat_gateway" {
+variable "single_nat_gateway" {
   type        = bool
   description = "Single NAT gateway"
 }
 
-variable "terraform_aws_vpc__virtual_private_cloud_vpc__enable_dns_hostnames" {
+variable "enable_dns_hostnames" {
   type        = bool
   description = "Enable DNS hostnames"
 }
 
-variable "terraform_aws_vpc__virtual_private_cloud_vpc__enable_dns_support" {
+variable "enable_dns_support" {
   type        = bool
   description = "Enable DNS support"
 }
 
-variable "terraform_aws_vpc__virtual_private_cloud_vpc__map_public_ip_on_launch" {
+variable "map_public_ip_on_launch" {
   type        = bool
   description = "Map public IP on launch"
 }
 
-variable "terraform_aws_subnet__public_subnet__name" {
-  type        = string
-  description = "Public subnet name"
-}
-
-variable "terraform_aws_subnet__public_subnet__cidr_block" {
-  type        = string
-  description = "Public subnet CIDR block"
-}
-
-variable "terraform_aws_subnet__public_subnet__availability_zone" {
-  type        = string
-  description = "Public subnet availability zone"
-}
-
-variable "terraform_aws_subnet__public_subnet__map_public_ip_on_launch" {
-  type        = bool
-  description = "Map public IP on launch"
-}
-
-variable "terraform_aws_subnet__public_subnet__assign_ipv6_address_on_creation" {
-  type        = bool
-  description = "Assign IPv6 address on creation"
-}
-
-variable "terraform_aws_subnet__public_subnet__ipv6_cidr_block" {
-  type        = string
-  description = "IPv6 CIDR block"
-  default     = null
-}
-
-variable "terraform_aws_subnet__public_subnet__create_route_table" {
-  type        = bool
-  description = "Create route table"
-}
-
-variable "terraform_aws_subnet__public_subnet__default_route_target_id" {
-  type        = string
-  description = "Default route target ID"
-  default     = null
-}
-
-variable "terraform_aws_subnet__public_subnet__default_route_target_type" {
-  type        = string
-  description = "Default route target type"
-}
-
-variable "terraform_aws_subnet__public_subnet__additional_routes" {
-  type = list(object({
-    cidr_block                = string
-    gateway_id                = optional(string)
-    nat_gateway_id            = optional(string)
-    transit_gateway_id        = optional(string)
-    vpc_peering_connection_id = optional(string)
-    network_interface_id      = optional(string)
-  }))
-  description = "Additional routes"
-  default     = []
-}
-
-variable "terraform_aws_subnet__private_subnet__name" {
-  type        = string
-  description = "Private subnet name"
-}
-
-variable "terraform_aws_subnet__private_subnet__cidr_block" {
-  type        = string
-  description = "Private subnet CIDR block"
-}
-
-variable "terraform_aws_subnet__private_subnet__availability_zone" {
-  type        = string
-  description = "Private subnet availability zone"
-}
-
-variable "terraform_aws_subnet__private_subnet__map_public_ip_on_launch" {
-  type        = bool
-  description = "Map public IP on launch"
-}
-
-variable "terraform_aws_subnet__private_subnet__assign_ipv6_address_on_creation" {
-  type        = bool
-  description = "Assign IPv6 address on creation"
-}
-
-variable "terraform_aws_subnet__private_subnet__ipv6_cidr_block" {
-  type        = string
-  description = "IPv6 CIDR block"
-  default     = null
-}
-
-variable "terraform_aws_subnet__private_subnet__create_route_table" {
-  type        = bool
-  description = "Create route table"
-}
-
-variable "terraform_aws_subnet__private_subnet__default_route_target_id" {
-  type        = string
-  description = "Default route target ID"
-  default     = null
-}
-
-variable "terraform_aws_subnet__private_subnet__default_route_target_type" {
-  type        = string
-  description = "Default route target type"
-}
-
-variable "terraform_aws_subnet__private_subnet__additional_routes" {
-  type = list(object({
-    cidr_block                = string
-    gateway_id                = optional(string)
-    nat_gateway_id            = optional(string)
-    transit_gateway_id        = optional(string)
-    vpc_peering_connection_id = optional(string)
-    network_interface_id      = optional(string)
-  }))
-  description = "Additional routes"
-  default     = []
-}
-
-variable "terraform_aws_security_group__alb_security_group__name" {
+variable "alb_sg_name" {
   type        = string
   description = "ALB security group name"
 }
 
-variable "terraform_aws_security_group__alb_security_group__description" {
+variable "alb_sg_description" {
   type        = string
   description = "ALB security group description"
 }
 
-variable "terraform_aws_security_group__alb_security_group__ingress_rules" {
+variable "alb_sg_ingress_rules" {
   type = list(object({
     description      = optional(string, "")
     from_port        = number
@@ -198,7 +78,7 @@ variable "terraform_aws_security_group__alb_security_group__ingress_rules" {
   description = "ALB security group ingress rules"
 }
 
-variable "terraform_aws_security_group__alb_security_group__egress_rules" {
+variable "alb_sg_egress_rules" {
   type = list(object({
     description      = optional(string, "")
     from_port        = number
@@ -212,27 +92,27 @@ variable "terraform_aws_security_group__alb_security_group__egress_rules" {
   description = "ALB security group egress rules"
 }
 
-variable "terraform_aws_security_group__alb_security_group__default_egress_allow_all" {
+variable "alb_sg_default_egress_allow_all" {
   type        = bool
-  description = "Default egress allow all"
+  description = "ALB security group default egress allow all"
 }
 
-variable "terraform_aws_security_group__alb_security_group__revoke_rules_on_delete" {
+variable "alb_sg_revoke_rules_on_delete" {
   type        = bool
-  description = "Revoke rules on delete"
+  description = "ALB security group revoke rules on delete"
 }
 
-variable "terraform_aws_security_group__ecs_security_group__name" {
+variable "ecs_sg_name" {
   type        = string
   description = "ECS security group name"
 }
 
-variable "terraform_aws_security_group__ecs_security_group__description" {
+variable "ecs_sg_description" {
   type        = string
   description = "ECS security group description"
 }
 
-variable "terraform_aws_security_group__ecs_security_group__ingress_rules" {
+variable "ecs_sg_ingress_rules" {
   type = list(object({
     description      = optional(string, "")
     from_port        = number
@@ -246,7 +126,7 @@ variable "terraform_aws_security_group__ecs_security_group__ingress_rules" {
   description = "ECS security group ingress rules"
 }
 
-variable "terraform_aws_security_group__ecs_security_group__egress_rules" {
+variable "ecs_sg_egress_rules" {
   type = list(object({
     description      = optional(string, "")
     from_port        = number
@@ -260,648 +140,195 @@ variable "terraform_aws_security_group__ecs_security_group__egress_rules" {
   description = "ECS security group egress rules"
 }
 
-variable "terraform_aws_security_group__ecs_security_group__default_egress_allow_all" {
+variable "ecs_sg_default_egress_allow_all" {
   type        = bool
-  description = "Default egress allow all"
+  description = "ECS security group default egress allow all"
 }
 
-variable "terraform_aws_security_group__ecs_security_group__revoke_rules_on_delete" {
+variable "ecs_sg_revoke_rules_on_delete" {
   type        = bool
-  description = "Revoke rules on delete"
+  description = "ECS security group revoke rules on delete"
 }
 
-variable "terraform_aws_security_group__lambda_security_group__name" {
+variable "public_subnet_name" {
   type        = string
-  description = "Lambda security group name"
+  description = "Public subnet name"
 }
 
-variable "terraform_aws_security_group__lambda_security_group__description" {
+variable "public_subnet_cidr_block" {
   type        = string
-  description = "Lambda security group description"
+  description = "Public subnet CIDR block"
 }
 
-variable "terraform_aws_security_group__lambda_security_group__ingress_rules" {
-  type = list(object({
-    description      = optional(string, "")
-    from_port        = number
-    to_port          = number
-    protocol         = string
-    cidr_blocks      = optional(list(string), [])
-    ipv6_cidr_blocks = optional(list(string), [])
-    security_groups  = optional(list(string), [])
-    self             = optional(bool, false)
-  }))
-  description = "Lambda security group ingress rules"
-}
-
-variable "terraform_aws_security_group__lambda_security_group__egress_rules" {
-  type = list(object({
-    description      = optional(string, "")
-    from_port        = number
-    to_port          = number
-    protocol         = string
-    cidr_blocks      = optional(list(string), [])
-    ipv6_cidr_blocks = optional(list(string), [])
-    security_groups  = optional(list(string), [])
-    self             = optional(bool, false)
-  }))
-  description = "Lambda security group egress rules"
-}
-
-variable "terraform_aws_security_group__lambda_security_group__default_egress_allow_all" {
-  type        = bool
-  description = "Default egress allow all"
-}
-
-variable "terraform_aws_security_group__lambda_security_group__revoke_rules_on_delete" {
-  type        = bool
-  description = "Revoke rules on delete"
-}
-
-variable "terraform_aws_security_group__rds_security_group__name" {
+variable "public_subnet_availability_zone" {
   type        = string
-  description = "RDS security group name"
+  description = "Public subnet availability zone"
 }
 
-variable "terraform_aws_security_group__rds_security_group__description" {
+variable "public_subnet_map_public_ip_on_launch" {
+  type        = bool
+  description = "Public subnet map public IP on launch"
+}
+
+variable "public_subnet_assign_ipv6_address_on_creation" {
+  type        = bool
+  description = "Public subnet assign IPv6 address on creation"
+}
+
+variable "public_subnet_ipv6_cidr_block" {
   type        = string
-  description = "RDS security group description"
+  description = "Public subnet IPv6 CIDR block"
+  default     = null
 }
 
-variable "terraform_aws_security_group__rds_security_group__ingress_rules" {
-  type = list(object({
-    description      = optional(string, "")
-    from_port        = number
-    to_port          = number
-    protocol         = string
-    cidr_blocks      = optional(list(string), [])
-    ipv6_cidr_blocks = optional(list(string), [])
-    security_groups  = optional(list(string), [])
-    self             = optional(bool, false)
-  }))
-  description = "RDS security group ingress rules"
-}
-
-variable "terraform_aws_security_group__rds_security_group__egress_rules" {
-  type = list(object({
-    description      = optional(string, "")
-    from_port        = number
-    to_port          = number
-    protocol         = string
-    cidr_blocks      = optional(list(string), [])
-    ipv6_cidr_blocks = optional(list(string), [])
-    security_groups  = optional(list(string), [])
-    self             = optional(bool, false)
-  }))
-  description = "RDS security group egress rules"
-}
-
-variable "terraform_aws_security_group__rds_security_group__default_egress_allow_all" {
+variable "public_subnet_create_route_table" {
   type        = bool
-  description = "Default egress allow all"
+  description = "Public subnet create route table"
 }
 
-variable "terraform_aws_security_group__rds_security_group__revoke_rules_on_delete" {
+variable "public_subnet_default_route_target_id" {
+  type        = string
+  description = "Public subnet default route target ID"
+  default     = null
+}
+
+variable "public_subnet_default_route_target_type" {
+  type        = string
+  description = "Public subnet default route target type"
+}
+
+variable "public_subnet_additional_routes" {
+  type = list(object({
+    cidr_block                = string
+    gateway_id                = optional(string)
+    nat_gateway_id            = optional(string)
+    transit_gateway_id        = optional(string)
+    vpc_peering_connection_id = optional(string)
+    network_interface_id      = optional(string)
+  }))
+  description = "Public subnet additional routes"
+}
+
+variable "private_subnet_name" {
+  type        = string
+  description = "Private subnet name"
+}
+
+variable "private_subnet_cidr_block" {
+  type        = string
+  description = "Private subnet CIDR block"
+}
+
+variable "private_subnet_availability_zone" {
+  type        = string
+  description = "Private subnet availability zone"
+}
+
+variable "private_subnet_map_public_ip_on_launch" {
   type        = bool
-  description = "Revoke rules on delete"
+  description = "Private subnet map public IP on launch"
 }
 
-variable "terraform_aws_alb__application_load_balancer__name" {
+variable "private_subnet_assign_ipv6_address_on_creation" {
+  type        = bool
+  description = "Private subnet assign IPv6 address on creation"
+}
+
+variable "private_subnet_ipv6_cidr_block" {
+  type        = string
+  description = "Private subnet IPv6 CIDR block"
+  default     = null
+}
+
+variable "private_subnet_create_route_table" {
+  type        = bool
+  description = "Private subnet create route table"
+}
+
+variable "private_subnet_default_route_target_id" {
+  type        = string
+  description = "Private subnet default route target ID"
+  default     = null
+}
+
+variable "private_subnet_default_route_target_type" {
+  type        = string
+  description = "Private subnet default route target type"
+}
+
+variable "private_subnet_additional_routes" {
+  type = list(object({
+    cidr_block                = string
+    gateway_id                = optional(string)
+    nat_gateway_id            = optional(string)
+    transit_gateway_id        = optional(string)
+    vpc_peering_connection_id = optional(string)
+    network_interface_id      = optional(string)
+  }))
+  description = "Private subnet additional routes"
+}
+
+variable "alb_name" {
   type        = string
   description = "ALB name"
 }
 
-variable "terraform_aws_alb__application_load_balancer__certificate_arn" {
+variable "certificate_arn" {
   type        = string
   description = "ACM certificate ARN"
 }
 
-variable "terraform_aws_alb__application_load_balancer__internal" {
+variable "internal" {
   type        = bool
-  description = "Internal load balancer"
+  description = "ALB internal flag"
 }
 
-variable "terraform_aws_alb__application_load_balancer__enable_deletion_protection" {
+variable "enable_deletion_protection" {
   type        = bool
-  description = "Enable deletion protection"
+  description = "ALB deletion protection"
 }
 
-variable "terraform_aws_alb__application_load_balancer__idle_timeout" {
+variable "idle_timeout" {
   type        = number
-  description = "Idle timeout in seconds"
+  description = "ALB idle timeout"
 }
 
-variable "terraform_aws_alb__application_load_balancer__target_port" {
+variable "target_port" {
   type        = number
-  description = "Target port"
+  description = "ALB target port"
 }
 
-variable "terraform_aws_alb__application_load_balancer__target_protocol" {
+variable "target_protocol" {
   type        = string
-  description = "Target protocol"
+  description = "ALB target protocol"
 }
 
-variable "terraform_aws_alb__application_load_balancer__health_check_path" {
+variable "health_check_path" {
   type        = string
-  description = "Health check path"
+  description = "ALB health check path"
 }
 
-variable "terraform_aws_alb__application_load_balancer__ssl_policy" {
+variable "ssl_policy" {
   type        = string
-  description = "SSL policy"
+  description = "ALB SSL policy"
 }
 
-variable "terraform_aws_alb__application_load_balancer__additional_certificate_arns" {
+variable "additional_certificate_arns" {
   type        = list(string)
-  description = "Additional certificate ARNs"
+  description = "ALB additional certificate ARNs"
 }
 
-variable "terraform_aws_iam_role__ecs_task_iam_role__name" {
-  type        = string
-  description = "ECS task IAM role name"
-}
-
-variable "terraform_aws_iam_role__ecs_task_iam_role__assume_role_principals" {
-  type = list(object({
-    type        = string
-    identifiers = list(string)
-  }))
-  description = "ECS task IAM role assume role principals"
-}
-
-variable "terraform_aws_iam_role__ecs_task_iam_role__description" {
-  type        = string
-  description = "ECS task IAM role description"
-}
-
-variable "terraform_aws_iam_role__ecs_task_iam_role__path" {
-  type        = string
-  description = "ECS task IAM role path"
-}
-
-variable "terraform_aws_iam_role__ecs_task_iam_role__max_session_duration" {
-  type        = number
-  description = "ECS task IAM role max session duration"
-}
-
-variable "terraform_aws_iam_role__ecs_task_iam_role__managed_policy_arns" {
-  type        = list(string)
-  description = "ECS task IAM role managed policy ARNs"
-}
-
-variable "terraform_aws_iam_role__ecs_task_iam_role__inline_policies" {
-  type = map(object({
-    name   = string
-    policy = string
-  }))
-  description = "ECS task IAM role inline policies"
-}
-
-variable "terraform_aws_iam_role__ecs_task_iam_role__permissions_boundary" {
-  type        = string
-  description = "ECS task IAM role permissions boundary"
-  default     = null
-}
-
-variable "terraform_aws_iam_role__ecs_task_iam_role__force_detach_policies" {
-  type        = bool
-  description = "ECS task IAM role force detach policies"
-}
-
-variable "terraform_aws_iam_role__lambda_iam_role__name" {
-  type        = string
-  description = "Lambda IAM role name"
-}
-
-variable "terraform_aws_iam_role__lambda_iam_role__assume_role_principals" {
-  type = list(object({
-    type        = string
-    identifiers = list(string)
-  }))
-  description = "Lambda IAM role assume role principals"
-}
-
-variable "terraform_aws_iam_role__lambda_iam_role__description" {
-  type        = string
-  description = "Lambda IAM role description"
-}
-
-variable "terraform_aws_iam_role__lambda_iam_role__path" {
-  type        = string
-  description = "Lambda IAM role path"
-}
-
-variable "terraform_aws_iam_role__lambda_iam_role__max_session_duration" {
-  type        = number
-  description = "Lambda IAM role max session duration"
-}
-
-variable "terraform_aws_iam_role__lambda_iam_role__managed_policy_arns" {
-  type        = list(string)
-  description = "Lambda IAM role managed policy ARNs"
-}
-
-variable "terraform_aws_iam_role__lambda_iam_role__inline_policies" {
-  type = map(object({
-    name   = string
-    policy = string
-  }))
-  description = "Lambda IAM role inline policies"
-}
-
-variable "terraform_aws_iam_role__lambda_iam_role__permissions_boundary" {
-  type        = string
-  description = "Lambda IAM role permissions boundary"
-  default     = null
-}
-
-variable "terraform_aws_iam_role__lambda_iam_role__force_detach_policies" {
-  type        = bool
-  description = "Lambda IAM role force detach policies"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_cluster__cluster_name" {
-  type        = string
-  description = "ECS cluster name"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_cluster__service_name" {
-  type        = string
-  description = "ECS service name"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_cluster__task_family" {
-  type        = string
-  description = "ECS task family"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_cluster__container_name" {
-  type        = string
-  description = "ECS container name"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_cluster__container_image" {
-  type        = string
-  description = "ECS container image"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_cluster__cpu" {
-  type        = number
-  description = "ECS task CPU units"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_cluster__memory" {
-  type        = number
-  description = "ECS task memory MB"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_cluster__container_port" {
-  type        = number
-  description = "ECS container port"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_cluster__desired_count" {
-  type        = number
-  description = "ECS desired task count"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_cluster__assign_public_ip" {
-  type        = bool
-  description = "ECS assign public IP"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_cluster__enable_autoscaling" {
-  type        = bool
-  description = "ECS enable autoscaling"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_cluster__autoscaling_min" {
-  type        = number
-  description = "ECS autoscaling min"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_cluster__autoscaling_max" {
-  type        = number
-  description = "ECS autoscaling max"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_cluster__autoscaling_cpu_target" {
-  type        = number
-  description = "ECS autoscaling CPU target"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_cluster__log_retention_days" {
-  type        = number
-  description = "ECS log retention days"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_fargate_service__cluster_name" {
-  type        = string
-  description = "ECS Fargate cluster name"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_fargate_service__service_name" {
-  type        = string
-  description = "ECS Fargate service name"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_fargate_service__task_family" {
-  type        = string
-  description = "ECS Fargate task family"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_fargate_service__container_name" {
-  type        = string
-  description = "ECS Fargate container name"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_fargate_service__container_image" {
-  type        = string
-  description = "ECS Fargate container image"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_fargate_service__cpu" {
-  type        = number
-  description = "ECS Fargate task CPU units"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_fargate_service__memory" {
-  type        = number
-  description = "ECS Fargate task memory MB"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_fargate_service__container_port" {
-  type        = number
-  description = "ECS Fargate container port"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_fargate_service__desired_count" {
-  type        = number
-  description = "ECS Fargate desired task count"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_fargate_service__assign_public_ip" {
-  type        = bool
-  description = "ECS Fargate assign public IP"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_fargate_service__enable_autoscaling" {
-  type        = bool
-  description = "ECS Fargate enable autoscaling"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_fargate_service__autoscaling_min" {
-  type        = number
-  description = "ECS Fargate autoscaling min"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_fargate_service__autoscaling_max" {
-  type        = number
-  description = "ECS Fargate autoscaling max"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_fargate_service__autoscaling_cpu_target" {
-  type        = number
-  description = "ECS Fargate autoscaling CPU target"
-}
-
-variable "terraform_aws_ecs_fargate__ecs_fargate_service__log_retention_days" {
-  type        = number
-  description = "ECS Fargate log retention days"
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__identifier" {
-  type        = string
-  description = "RDS instance identifier"
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__engine" {
-  type        = string
-  description = "RDS engine"
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__engine_version" {
-  type        = string
-  description = "RDS engine version"
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__username" {
-  type        = string
-  description = "RDS master username"
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__password" {
-  type        = string
-  description = "RDS master password"
-  sensitive   = true
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__db_subnet_group_name" {
-  type        = string
-  description = "RDS DB subnet group name"
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__instance_class" {
-  type        = string
-  description = "RDS instance class"
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__allocated_storage" {
-  type        = number
-  description = "RDS allocated storage GB"
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__max_allocated_storage" {
-  type        = number
-  description = "RDS max allocated storage GB"
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__storage_type" {
-  type        = string
-  description = "RDS storage type"
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__storage_encrypted" {
-  type        = bool
-  description = "RDS storage encrypted"
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__kms_key_id" {
-  type        = string
-  description = "RDS KMS key ID"
-  default     = null
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__db_name" {
-  type        = string
-  description = "RDS database name"
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__multi_az" {
-  type        = bool
-  description = "RDS multi AZ"
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__backup_retention_period" {
-  type        = number
-  description = "RDS backup retention period"
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__deletion_protection" {
-  type        = bool
-  description = "RDS deletion protection"
-}
-
-variable "terraform_aws_rds__rds_aurora_postgresql__skip_final_snapshot" {
-  type        = bool
-  description = "RDS skip final snapshot"
-}
-
-variable "terraform_aws_s3__s3_bucket__bucket_name" {
-  type        = string
-  description = "S3 bucket name"
-}
-
-variable "terraform_aws_s3__s3_bucket__force_destroy" {
-  type        = bool
-  description = "S3 force destroy"
-}
-
-variable "terraform_aws_s3__s3_bucket__versioning_enabled" {
-  type        = bool
-  description = "S3 versioning enabled"
-}
-
-variable "terraform_aws_s3__s3_bucket__sse_algorithm" {
-  type        = string
-  description = "S3 SSE algorithm"
-}
-
-variable "terraform_aws_s3__s3_bucket__kms_master_key_id" {
-  type        = string
-  description = "S3 KMS master key ID"
-  default     = null
-}
-
-variable "terraform_aws_s3__s3_bucket__block_public_acls" {
-  type        = bool
-  description = "S3 block public ACLs"
-}
-
-variable "terraform_aws_s3__s3_bucket__block_public_policy" {
-  type        = bool
-  description = "S3 block public policy"
-}
-
-variable "terraform_aws_s3__s3_bucket__ignore_public_acls" {
-  type        = bool
-  description = "S3 ignore public ACLs"
-}
-
-variable "terraform_aws_s3__s3_bucket__restrict_public_buckets" {
-  type        = bool
-  description = "S3 restrict public buckets"
-}
-
-variable "terraform_aws_s3__s3_bucket__lifecycle_rules" {
-  type = list(object({
-    id                                 = string
-    status                             = optional(string, "Enabled")
-    prefix                             = optional(string, "")
-    filter_tags                        = optional(map(string), {})
-    expiration_days                    = optional(number)
-    noncurrent_version_expiration_days = optional(number)
-    transitions = optional(list(object({
-      days          = number
-      storage_class = string
-    })), [])
-  }))
-  description = "S3 lifecycle rules"
-  default     = []
-}
-
-variable "terraform_aws_s3__s3_bucket__bucket_policy_json" {
-  type        = string
-  description = "S3 bucket policy JSON"
-  default     = null
-}
-
-variable "aws_secrets_manager__name" {
-  type        = string
-  description = "Secrets Manager secret name"
-}
-
-variable "aws_secrets_manager__description" {
-  type        = string
-  description = "Secrets Manager secret description"
-  default     = null
-}
-
-variable "aws_secrets_manager__kms_key_id" {
-  type        = string
-  description = "Secrets Manager KMS key ID"
-  default     = null
-}
-
-variable "aws_secrets_manager__recovery_window_in_days" {
-  type        = number
-  description = "Secrets Manager recovery window in days"
-}
-
-variable "aws_secrets_manager__secret_string" {
-  type        = string
-  description = "Secrets Manager secret string"
-  sensitive   = true
-  default     = null
-}
-
-variable "aws_secrets_manager__secret_key_value_pairs" {
-  type        = map(string)
-  description = "Secrets Manager secret key value pairs"
-  sensitive   = true
-  default     = null
-}
-
-variable "aws_secrets_manager__secret_binary" {
-  type        = string
-  description = "Secrets Manager secret binary"
-  sensitive   = true
-  default     = null
-}
-
-variable "aws_secrets_manager__enable_rotation" {
-  type        = bool
-  description = "Secrets Manager enable rotation"
-}
-
-variable "aws_secrets_manager__rotation_lambda_arn" {
-  type        = string
-  description = "Secrets Manager rotation Lambda ARN"
-  default     = null
-}
-
-variable "aws_secrets_manager__rotation_automatically_after_days" {
-  type        = number
-  description = "Secrets Manager rotation automatically after days"
-}
-
-variable "aws_secrets_manager__block_public_policy" {
-  type        = bool
-  description = "Secrets Manager block public policy"
-}
-
-variable "aws_cloudwatch__cloudwatch_alarms__log_groups" {
+variable "log_groups" {
   type = map(object({
     name              = string
     retention_in_days = optional(number, 14)
     kms_key_id        = optional(string, null)
     tags              = optional(map(string), {})
   }))
-  description = "CloudWatch alarms log groups"
-  default     = {}
+  description = "CloudWatch log groups"
 }
 
-variable "aws_cloudwatch__cloudwatch_alarms__metric_alarms" {
+variable "metric_alarms" {
   type = map(object({
     alarm_name          = string
     comparison_operator = string
@@ -921,28 +348,25 @@ variable "aws_cloudwatch__cloudwatch_alarms__metric_alarms" {
     tags                = optional(map(string), {})
   }))
   description = "CloudWatch metric alarms"
-  default     = {}
 }
 
-variable "aws_cloudwatch__cloudwatch_alarms__dashboards" {
+variable "dashboards" {
   type = map(object({
     dashboard_name = string
     dashboard_body = string
   }))
-  description = "CloudWatch alarms dashboards"
-  default     = {}
+  description = "CloudWatch dashboards"
 }
 
-variable "aws_cloudwatch__cloudwatch_alarms__log_streams" {
+variable "log_streams" {
   type = map(object({
     name           = string
     log_group_name = string
   }))
-  description = "CloudWatch alarms log streams"
-  default     = {}
+  description = "CloudWatch log streams"
 }
 
-variable "aws_cloudwatch__cloudwatch_alarms__event_rules" {
+variable "event_rules" {
   type = map(object({
     name                = string
     description         = optional(string, "")
@@ -951,100 +375,150 @@ variable "aws_cloudwatch__cloudwatch_alarms__event_rules" {
     state               = optional(string, "ENABLED")
     tags                = optional(map(string), {})
   }))
-  description = "CloudWatch alarms event rules"
-  default     = {}
+  description = "CloudWatch event rules"
 }
 
-variable "aws_cloudwatch__cloudwatch_alarms__event_targets" {
+variable "event_targets" {
   type = map(object({
     rule      = string
     target_id = string
     arn       = string
     role_arn  = optional(string, null)
   }))
-  description = "CloudWatch alarms event targets"
-  default     = {}
+  description = "CloudWatch event targets"
 }
 
-variable "aws_cloudwatch__cloudwatch_log_group__log_groups" {
-  type = map(object({
-    name              = string
-    retention_in_days = optional(number, 14)
-    kms_key_id        = optional(string, null)
-    tags              = optional(map(string), {})
-  }))
-  description = "CloudWatch log group log groups"
-  default     = {}
+variable "iam_role_name" {
+  type        = string
+  description = "IAM role name"
 }
 
-variable "aws_cloudwatch__cloudwatch_log_group__metric_alarms" {
-  type = map(object({
-    alarm_name          = string
-    comparison_operator = string
-    evaluation_periods  = number
-    metric_name         = string
-    namespace           = string
-    period              = number
-    statistic           = string
-    threshold           = number
-    alarm_description   = optional(string, "")
-    alarm_actions       = optional(list(string), [])
-    ok_actions          = optional(list(string), [])
-    treat_missing_data  = optional(string, "missing")
-    datapoints_to_alarm = optional(number, null)
-    dimensions          = optional(map(string), null)
-    unit                = optional(string, null)
-    tags                = optional(map(string), {})
+variable "assume_role_principals" {
+  type = list(object({
+    type        = string
+    identifiers = list(string)
   }))
-  description = "CloudWatch log group metric alarms"
-  default     = {}
+  description = "IAM role assume role principals"
 }
 
-variable "aws_cloudwatch__cloudwatch_log_group__dashboards" {
-  type = map(object({
-    dashboard_name = string
-    dashboard_body = string
-  }))
-  description = "CloudWatch log group dashboards"
-  default     = {}
+variable "iam_role_description" {
+  type        = string
+  description = "IAM role description"
 }
 
-variable "aws_cloudwatch__cloudwatch_log_group__log_streams" {
-  type = map(object({
-    name           = string
-    log_group_name = string
-  }))
-  description = "CloudWatch log group log streams"
-  default     = {}
+variable "path" {
+  type        = string
+  description = "IAM role path"
 }
 
-variable "aws_cloudwatch__cloudwatch_log_group__event_rules" {
-  type = map(object({
-    name                = string
-    description         = optional(string, "")
-    event_pattern       = optional(string, null)
-    schedule_expression = optional(string, null)
-    state               = optional(string, "ENABLED")
-    tags                = optional(map(string), {})
-  }))
-  description = "CloudWatch log group event rules"
-  default     = {}
+variable "max_session_duration" {
+  type        = number
+  description = "IAM role max session duration"
 }
 
-variable "aws_cloudwatch__cloudwatch_log_group__event_targets" {
+variable "managed_policy_arns" {
+  type        = list(string)
+  description = "IAM role managed policy ARNs"
+}
+
+variable "inline_policies" {
   type = map(object({
-    rule      = string
-    target_id = string
-    arn       = string
-    role_arn  = optional(string, null)
+    name   = string
+    policy = string
   }))
-  description = "CloudWatch log group event targets"
-  default     = {}
+  description = "IAM role inline policies"
+}
+
+variable "permissions_boundary" {
+  type        = string
+  description = "IAM role permissions boundary"
+  default     = null
+}
+
+variable "force_detach_policies" {
+  type        = bool
+  description = "IAM role force detach policies"
+}
+
+variable "cluster_name" {
+  type        = string
+  description = "ECS cluster name"
 }
 
 variable "service_name" {
   type        = string
-  description = "Service name for resource tagging"
+  description = "ECS service name"
+}
+
+variable "task_family" {
+  type        = string
+  description = "ECS task family"
+}
+
+variable "container_name" {
+  type        = string
+  description = "ECS container name"
+}
+
+variable "container_image" {
+  type        = string
+  description = "ECS container image URI"
+}
+
+variable "cpu" {
+  type        = number
+  description = "ECS task CPU units"
+}
+
+variable "memory" {
+  type        = number
+  description = "ECS task memory MB"
+}
+
+variable "container_port" {
+  type        = number
+  description = "ECS container port"
+}
+
+variable "desired_count" {
+  type        = number
+  description = "ECS desired task count"
+}
+
+variable "assign_public_ip" {
+  type        = bool
+  description = "ECS assign public IP"
+}
+
+variable "enable_autoscaling" {
+  type        = bool
+  description = "ECS enable autoscaling"
+}
+
+variable "autoscaling_min" {
+  type        = number
+  description = "ECS autoscaling min"
+}
+
+variable "autoscaling_max" {
+  type        = number
+  description = "ECS autoscaling max"
+}
+
+variable "autoscaling_cpu_target" {
+  type        = number
+  description = "ECS autoscaling CPU target"
+}
+
+variable "log_retention_days" {
+  type        = number
+  description = "ECS log retention days"
+}
+
+variable "task_role_arn" {
+  type        = string
+  description = "ECS task role ARN"
+  default     = null
 }
 
 variable "team" {
