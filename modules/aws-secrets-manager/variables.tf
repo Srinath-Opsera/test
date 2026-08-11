@@ -41,21 +41,28 @@ variable "replica_regions" {
 }
 
 variable "secret_string" {
-  description = "The text data to store in the secret. Either secret_string or secret_binary must be set, but not both."
+  description = "A string value to store in the secret. Conflicts with secret_binary. If secret_key_value_pairs is set, this variable is ignored."
   type        = string
   default     = null
   sensitive   = true
 }
 
+variable "secret_key_value_pairs" {
+  description = "A map of key/value pairs to store as a JSON string in the secret. Takes precedence over secret_string when set."
+  type        = map(string)
+  default     = null
+  sensitive   = true
+}
+
 variable "secret_binary" {
-  description = "The binary data to store in the secret. Either secret_string or secret_binary must be set, but not both. Must be base64-encoded."
+  description = "A binary value to store in the secret. Conflicts with secret_string. Must be base64-encoded."
   type        = string
   default     = null
   sensitive   = true
 }
 
 variable "version_stages" {
-  description = "A list of staging labels attached to this version of the secret. A staging label must be unique to a single version of the secret."
+  description = "A list of staging labels to attach to this version of the secret."
   type        = list(string)
   default     = null
 }
@@ -89,7 +96,7 @@ variable "rotation_automatically_after_days" {
 }
 
 variable "secret_policy" {
-  description = "A valid JSON document representing a resource policy. If not set, no resource policy is attached."
+  description = "A valid JSON document representing a resource policy. Set to null to skip policy creation."
   type        = string
   default     = null
 }
@@ -101,7 +108,7 @@ variable "block_public_policy" {
 }
 
 variable "tags" {
-  description = "A map of tags to assign to the secret."
+  description = "A map of tags to assign to all resources."
   type        = map(string)
   default     = {}
 }
